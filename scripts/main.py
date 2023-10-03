@@ -6,5 +6,5 @@ from tela_labirinto import TelaLabirinto
 
 pygame.init()
 
-tela = TelaLabirinto(1280, 720)
+tela = TelaInicial(1280, 720)
 tela.executar()

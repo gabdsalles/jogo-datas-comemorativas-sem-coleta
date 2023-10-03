@@ -19,7 +19,7 @@ class TelaInicial:
 
         self.fonte = pygame.font.Font(None, 36)
 
-        self.imagem_fundo = pygame.image.load("assets/tela_inicial_fundo.png").convert()
+        self.imagem_fundo = pygame.image.load("assets/imagens/tela_inicial_fundo.png").convert()
 
         self.texto_titulo_1 = self.fonte.render("Jogo das Datas", True, self.BRANCO)
         self.texto_titulo_2 = self.fonte.render("Comemorativas", True, self.BRANCO)

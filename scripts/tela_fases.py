@@ -33,7 +33,7 @@ class TelaFases:
         self.ret_jogar = pygame.rect.Rect(300, 10, 200, 50)
         self.mostrar_botao_jogar = False
 
-        self.imagem_fundo = pygame.image.load("assets/fases_imagem.png").convert()
+        self.imagem_fundo = pygame.image.load("assets/imagens/fases_imagem.png").convert()
         self.imagem_fundo_rect = self.imagem_fundo.get_rect()
         self.imagem_fundo_posx = 0
 
