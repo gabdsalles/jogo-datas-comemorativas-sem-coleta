@@ -24,6 +24,9 @@ class TelaLabirinto:
         self.AMARELO = (255, 255, 0)
         self.VERMELHO = (255, 0, 0)
 
+        self.flag = [False, False, False, False, False]
+        self.cont_flag = 0
+
         self.pontos_jogador = 0
         self.pontos_robo = 0
         self.pontos_totais = 5
@@ -39,7 +42,7 @@ class TelaLabirinto:
         self.fundo_rect = pygame.rect.Rect(0, 0, 400, 720)
         self.tabuleiro = maze_maker.make_maze(8, 8)
         self.lista_rect_tabuleiro = [] # lista de retangulos do labirinto, que serão desenhados
-        print(self.tabuleiro)
+        #print(self.tabuleiro)
 
         self.titulo_fase_texto = self.fonte.render("Natal", True, self.BRANCO)
         self.titulo_fase_x = 150
@@ -69,9 +72,18 @@ class TelaLabirinto:
         self.pontos_robo_x = 50
         self.pontos_robo_y = 550
 
+        self.lista_posicoes_itens = []
+
+        self.lista_itens = [pygame.image.load("assets/imagens/natal/santa.png"),
+         pygame.image.load("assets/imagens/natal/tree.png"), 
+         pygame.image.load("assets/imagens/natal/giftbox.png"),
+         pygame.image.load("assets/imagens/natal/bell.png"),
+         pygame.image.load("assets/imagens/natal/bengala.png")]
+
     def desenhar_labirinto(self):
 
         x, y = 450, 25 # Posição inicial
+        cont_itens = 0
         for linha in self.tabuleiro.splitlines():
             for caractere in linha:
                 if caractere == ' ':
@@ -91,9 +103,15 @@ class TelaLabirinto:
                     self.lista_rect_tabuleiro.append(retangulo)
                     pygame.draw.rect(self.tela, self.PRETO, retangulo[0]) 
                 elif caractere == "i":
-                    retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.AMARELO)
-                    self.lista_rect_tabuleiro.append(retangulo)
-                    pygame.draw.rect(self.tela, self.AMARELO, retangulo[0])
+                    retangulo = pygame.Rect(x, y, DISTANCIA_X, DISTANCIA_Y)
+                    imagem_rect = self.lista_itens[cont_itens].get_rect()
+                    pygame.draw.rect(self.tela, self.AMARELO, retangulo)
+                    self.lista_posicoes_itens.append((x, y))
+
+                    self.tela.blit(self.lista_itens[cont_itens], (x, y))
+                    self.lista_rect_tabuleiro.append((retangulo, self.AMARELO))
+                    cont_itens += 1
+
                 x += DISTANCIA_X # Avança horizontalmente
             x = 450  # Volta para a posição inicial na próxima linha
             y += DISTANCIA_Y
@@ -155,6 +173,14 @@ class TelaLabirinto:
             if event.type == MOUSEBUTTONDOWN:
                 pass          
 
+        posicao_jogador = self.crianca.rect.topleft
+        if posicao_jogador in self.lista_posicoes_itens and self.flag[self.cont_flag] == False:
+            self.pontos_jogador += 1 #aumentar pontuação do jogador
+            self.pontuacao_jogador_texto = self.fonte.render(f"{self.pontos_jogador}/{self.pontos_totais}", True, self.BRANCO)
+            self.lista_posicoes_itens.remove(posicao_jogador) #remover posição do item da lista de posições
+            #tirar item da tela
+            #ter controle de vários itens
+        
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.VERMELHO, self.fundo_rect)
@@ -194,15 +220,9 @@ tela = TelaLabirinto(1280, 720)
 tela.executar()
 
 #TO-DO:
-# 1. Ajustar as posições dos textos - OK
-# 2. Fazer com que os textos de tempo e pontuação mudem
-# 3. Melhorar o desenho do labirinto - OK
-# 4. Colocar uma imagem pra servir como "jogador" - OK
-# 5. Controlar movimentos do jogador (pygame.event) - OK
-# 6. Checar colisões com o labirinto (direções possíveis)
-# 7. Colocar itens no labirinto - OK
-# 8. Checar colisões com os itens
-# 9. Colocar o robô no labirinto - OK
-# 10. Implementar algoritmo de IA no robô
-# 11. Colocar música + efeitos sonoros quando alguém pega um item
+# 1. Fazer com que os textos de tempo e pontuação mudem
+# 2. Checar colisões com o labirinto (direções possíveis)
+# 3. Checar colisões com os itens
+# 4. Implementar algoritmo de IA no robô
+# 5. Colocar música + efeitos sonoros quando alguém pega um item
 
