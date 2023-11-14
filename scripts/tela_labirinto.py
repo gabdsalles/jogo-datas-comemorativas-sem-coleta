@@ -4,9 +4,11 @@ import sys
 from crianca import Crianca
 import maze_maker
 from robo import Robo
+from labirinto.itens import ListaItens
 
 DISTANCIA_X = 30
 DISTANCIA_Y = 40
+FPS = 60
 
 class TelaLabirinto:
     def __init__(self, largura, altura):
@@ -16,6 +18,8 @@ class TelaLabirinto:
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Fase 1 - Labirinto')
+        self.relogio = pygame.time.Clock()
+
 
         self.imagem_fundo = pygame.image.load("assets/imagens/natal_fundo.jpeg").convert()
 
@@ -60,9 +64,12 @@ class TelaLabirinto:
         self.tempo_texto_x = 50
         self.tempo_texto_y = 350
 
+
         self.tempo = self.fonte.render("00:00", True, self.BRANCO)
         self.tempo_x = 50
         self.tempo_y = 400
+
+        self.tempo_decorrido = 0
 
         self.itens_robo_texto = self.fonte.render("Itens do robô", True, self.BRANCO)
         self.itens_robo_x = 50
@@ -72,13 +79,9 @@ class TelaLabirinto:
         self.pontos_robo_x = 50
         self.pontos_robo_y = 550
 
-        self.lista_posicoes_itens = []
+        self.lista_itens = ListaItens().lista_itens
 
-        self.lista_itens = [pygame.image.load("assets/imagens/natal/santa.png"),
-         pygame.image.load("assets/imagens/natal/tree.png"), 
-         pygame.image.load("assets/imagens/natal/giftbox.png"),
-         pygame.image.load("assets/imagens/natal/bell.png"),
-         pygame.image.load("assets/imagens/natal/bengala.png")]
+        self.lista_imagens = [pygame.image.load(item.imagem) for item in self.lista_itens]
 
     def desenhar_labirinto(self):
 
@@ -104,11 +107,16 @@ class TelaLabirinto:
                     pygame.draw.rect(self.tela, self.PRETO, retangulo[0]) 
                 elif caractere == "i":
                     retangulo = pygame.Rect(x, y, DISTANCIA_X, DISTANCIA_Y)
-                    imagem_rect = self.lista_itens[cont_itens].get_rect()
-                    pygame.draw.rect(self.tela, self.AMARELO, retangulo)
-                    self.lista_posicoes_itens.append((x, y))
+                    imagem_rect = self.lista_imagens[cont_itens].get_rect()
 
-                    self.tela.blit(self.lista_itens[cont_itens], (x, y))
+                    if self.lista_itens[cont_itens].passou == True:
+                        pygame.draw.rect(self.tela, self.BRANCO, retangulo)
+                    else:
+                        pygame.draw.rect(self.tela, self.AMARELO, retangulo)
+                        self.tela.blit(self.lista_imagens[cont_itens], (x, y))
+                    #print(len(self.lista_itens))
+                    self.lista_itens[cont_itens].posicao = (x, y)
+
                     self.lista_rect_tabuleiro.append((retangulo, self.AMARELO))
                     cont_itens += 1
 
@@ -147,6 +155,8 @@ class TelaLabirinto:
     
     def desenhar_tela(self):
 
+        self.relogio.tick(FPS)
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -174,13 +184,17 @@ class TelaLabirinto:
                 pass          
 
         posicao_jogador = self.crianca.rect.topleft
-        if posicao_jogador in self.lista_posicoes_itens and self.flag[self.cont_flag] == False:
-            self.pontos_jogador += 1 #aumentar pontuação do jogador
-            self.pontuacao_jogador_texto = self.fonte.render(f"{self.pontos_jogador}/{self.pontos_totais}", True, self.BRANCO)
-            self.lista_posicoes_itens.remove(posicao_jogador) #remover posição do item da lista de posições
-            #tirar item da tela
-            #ter controle de vários itens
-        
+        novos_itens = []
+        novas_imagens = []
+
+        for item in self.lista_itens:
+            if posicao_jogador == item.posicao and item.passou == False:
+                item.passou = True
+                self.pontos_jogador += 1 #aumentar pontuação do jogador
+                self.pontuacao_jogador_texto = self.fonte.render(f"{self.pontos_jogador}/{self.pontos_totais}", True, self.BRANCO)
+                item.dono = "jogador"
+                print(item.nome, item.dono, item.passou)
+
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.VERMELHO, self.fundo_rect)
@@ -201,6 +215,12 @@ class TelaLabirinto:
             self.crianca.rect.topleft = crianca_x, crianca_y
             #print(crianca_x, crianca_y)
 
+        self.tempo_decorrido += 1
+        segundos = self.tempo_decorrido // 60
+        minutos = segundos // 60
+        tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
+        self.tempo = self.fonte.render(tempo_formatado, True, self.BRANCO)
+
         self.todas_sprites.draw(self.tela)
         
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
@@ -220,9 +240,8 @@ tela = TelaLabirinto(1280, 720)
 tela.executar()
 
 #TO-DO:
-# 1. Fazer com que os textos de tempo e pontuação mudem
-# 2. Checar colisões com o labirinto (direções possíveis)
-# 3. Checar colisões com os itens
-# 4. Implementar algoritmo de IA no robô
-# 5. Colocar música + efeitos sonoros quando alguém pega um item
+# 1. Fazer com que o texto de tempo mude
+# 2. Implementar algoritmo de IA no robô
+# 3. Colocar música + efeitos sonoros quando alguém pega um item
+# 4. Deixar a interface mais intuitiva (quando alguém ganha ou perde, avisar para o jogador)
 
