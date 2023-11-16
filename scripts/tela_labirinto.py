@@ -28,9 +28,6 @@ class TelaLabirinto:
         self.AMARELO = (255, 255, 0)
         self.VERMELHO = (255, 0, 0)
 
-        self.flag = [False, False, False, False, False]
-        self.cont_flag = 0
-
         self.pontos_jogador = 0
         self.pontos_robo = 0
         self.pontos_totais = 5
@@ -152,7 +149,6 @@ class TelaLabirinto:
                     return True
 
 
-    
     def desenhar_tela(self):
 
         self.relogio.tick(FPS)
@@ -240,8 +236,8 @@ tela = TelaLabirinto(1280, 720)
 tela.executar()
 
 #TO-DO:
-# 1. Fazer com que o texto de tempo mude
-# 2. Implementar algoritmo de IA no robô
-# 3. Colocar música + efeitos sonoros quando alguém pega um item
-# 4. Deixar a interface mais intuitiva (quando alguém ganha ou perde, avisar para o jogador)
+# 1. Implementar algoritmo de IA no robô
+# 2. Colocar música + efeitos sonoros quando alguém pega um item
+# 3. Deixar a interface mais intuitiva (quando alguém ganha ou perde, avisar para o jogador)
+# 4. Resolver problema de não poder mover o jogador sem ter que apertar a tecla mais vezes
 
