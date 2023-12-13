@@ -11,10 +11,28 @@ class ListaItens:
     
     def __init__(self):
         
-        santa = Item("santa", "assets/imagens/natal/santa.png")
-        tree = Item("tree", "assets/imagens/natal/tree.png")
-        giftbox = Item("giftbox", "assets/imagens/natal/giftbox.png")
-        bell = Item("bell", "assets/imagens/natal/bell.png")
-        bengala = Item("bengala", "assets/imagens/natal/bengala.png")
+        self.lista_itens = [
+            Item("santa", "assets/imagens/natal/santa.png"),
+            Item("tree", "assets/imagens/natal/tree.png"),
+            Item("giftbox", "assets/imagens/natal/giftbox.png"),
+            Item("bell", "assets/imagens/natal/bell.png"),
+            Item("bengala", "assets/imagens/natal/bengala.png"),
+            Item("ball", "assets/imagens/natal/ball.png"),
+            Item("santa", "assets/imagens/natal/santa.png"),
+            Item("tree", "assets/imagens/natal/tree.png"),
+            Item("giftbox", "assets/imagens/natal/giftbox.png"),
+            Item("bell", "assets/imagens/natal/bell.png"),
+            Item("bengala", "assets/imagens/natal/bengala.png"),
+            Item("ball", "assets/imagens/natal/ball.png"),
+            Item("santa", "assets/imagens/natal/santa.png"),
+            Item("tree", "assets/imagens/natal/tree.png"),
+            Item("giftbox", "assets/imagens/natal/giftbox.png"),
+            Item("bell", "assets/imagens/natal/bell.png"),
+            Item("bengala", "assets/imagens/natal/bengala.png"),
+            Item("ball", "assets/imagens/natal/ball.png")
+        ]
 
-        self.lista_itens = [santa, tree, giftbox, bell, bengala]
+        self.lista_possibilidades_itens = [("santa", "assets/imagens/natal/santa.png"), ("tree", "assets/imagens/natal/tree.png"), ("giftbox", "assets/imagens/natal/giftbox.png"), ("bell", "assets/imagens/natal/bell.png"), ("bengala", "assets/imagens/natal/bengala.png"), ("ball", "assets/imagens/natal/ball.png")]
+
+
+        
