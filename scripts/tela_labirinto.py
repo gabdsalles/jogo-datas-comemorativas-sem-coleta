@@ -28,7 +28,6 @@ class TelaLabirinto:
         self.GRID_LARGURA = 30
         self.ultima_geracao = 0
 
-
         self.imagem_fundo = pygame.image.load("assets/imagens/natal_fundo.png").convert()
         self.arvore_jogador_1 = pygame.image.load("assets/imagens/natal/arvore_natal.png").convert_alpha()
         self.arvore_jogador_2 = pygame.image.load("assets/imagens/natal/arvore_natal.png").convert_alpha()
