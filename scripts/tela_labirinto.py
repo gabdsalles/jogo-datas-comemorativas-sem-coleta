@@ -57,7 +57,8 @@ class TelaLabirinto:
         self.fundo_rect = pygame.rect.Rect(0, 0, 300, 720)
         self.tabuleiro = maze_maker.make_maze()
         self.lista_rect_tabuleiro = [] # lista de retangulos do labirinto, que serão desenhados
-        print(self.tabuleiro)
+        for row in self.tabuleiro:
+            print(''.join(row))
 
         self.titulo_fase_texto = self.fonte_maior.render("Natal", True, self.PRETO)
         self.titulo_fase_x = 75
@@ -95,48 +96,79 @@ class TelaLabirinto:
 
         self.lista_imagens = [pygame.image.load(item.imagem) for item in self.lista_itens]
 
+        self.posicao_crianca_matriz = (1, 1)
+        self.posicao_robo_matriz = (len(self.tabuleiro) - 2, len(self.tabuleiro[0]) - 2)
+
     def desenhar_labirinto(self):
-
-        x, y = X_INICIAL, Y_INICIAL # Posição inicial
+        x, y = X_INICIAL, Y_INICIAL  # Posição inicial
         cont_itens = 0
-        linhas_tabuleiro = self.tabuleiro.splitlines()
 
-        for i in range(len(linhas_tabuleiro)):
+        for i in range(len(self.tabuleiro)):
 
-            linha = linhas_tabuleiro[i]
-            for caractere in linha:
-                if caractere == ' ':
-                    retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.BRANCO)
-                    self.lista_rect_tabuleiro.append(retangulo)
-                    pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
-                elif caractere == '+':
-                    retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.PRETO)
-                    self.lista_rect_tabuleiro.append(retangulo)
-                    pygame.draw.rect(self.tela, self.PRETO, retangulo[0])
-                elif caractere == '|':
-                    retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.PRETO)
-                    self.lista_rect_tabuleiro.append(retangulo)
-                    pygame.draw.rect(self.tela, self.PRETO, retangulo[0])
-                elif caractere == '-':
-                    retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.PRETO)
-                    self.lista_rect_tabuleiro.append(retangulo)
-                    pygame.draw.rect(self.tela, self.PRETO, retangulo[0]) 
-                elif caractere == "i":
-                    retangulo = pygame.Rect(x, y, DISTANCIA_X, DISTANCIA_Y)
-                    imagem_rect = self.lista_imagens[cont_itens].get_rect()
+            linha = self.tabuleiro[i]
 
-                    pygame.draw.rect(self.tela, self.BRANCO, retangulo)
-                    if self.lista_itens[cont_itens].passou == False:
-                        self.tela.blit(self.lista_imagens[cont_itens], (x, y))
-                    #print(len(self.lista_itens))
-                    self.lista_itens[cont_itens].posicao = (x, y)
+            for j, caractere in enumerate(linha):
+                
+                if i % 2 == 0:
+                    if j % 2 == 0: #coluna de bordas verticais
+                        if caractere == '+':
+                            retangulo = (pygame.rect.Rect(x, y, ESPESSURA_BORDA, ESPESSURA_BORDA), self.PRETO)
+                            pygame.draw.rect(self.tela, self.PRETO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        elif caractere == ' ':
+                            retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, ESPESSURA_BORDA), self.BRANCO)
+                            pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        x += ESPESSURA_BORDA
+                    else: #coluna de espaços
+                        if caractere == "-":
+                            retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, ESPESSURA_BORDA), self.PRETO)
+                            pygame.draw.rect(self.tela, self.PRETO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        elif caractere == ' ':
+                            retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, ESPESSURA_BORDA), self.BRANCO)
+                            pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        x += DISTANCIA_X
 
-                    self.lista_rect_tabuleiro.append((retangulo, self.BRANCO))
-                    cont_itens += 1
+                else:
+                    
+                    if j % 2 == 0: #coluna de bordas verticais
+                        if caractere == '|':
+                            retangulo = (pygame.rect.Rect(x, y, ESPESSURA_BORDA, DISTANCIA_Y), self.PRETO)
+                            pygame.draw.rect(self.tela, self.PRETO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        elif caractere == " ":
+                            retangulo = (pygame.rect.Rect(x, y, ESPESSURA_BORDA, DISTANCIA_Y), self.BRANCO)
+                            pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
+                            self.lista_rect_tabuleiro.append(retangulo)
+                        x += ESPESSURA_BORDA
+                    
+                    else: # coluna de espaços
+                        if caractere == ' ':
+                            retangulo = (pygame.rect.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.BRANCO)
+                            self.lista_rect_tabuleiro.append(retangulo)
+                            pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
+                        elif caractere == "i":
+                            retangulo = (pygame.Rect(x, y, DISTANCIA_X, DISTANCIA_Y), self.BRANCO)
+                            imagem_rect = self.lista_imagens[cont_itens].get_rect()
 
-                x += DISTANCIA_X # Avança horizontalmente
+                            pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
+                            if self.lista_itens[cont_itens].passou == False:
+                                self.tela.blit(self.lista_imagens[cont_itens], (x, y))
+                            # print(len(self.lista_itens))
+                            self.lista_itens[cont_itens].posicao = (x, y)
+
+                            self.lista_rect_tabuleiro.append(retangulo)
+                            cont_itens += 1
+                        x += DISTANCIA_X  # Avança horizontalmente
+
             x = 350  # Volta para a posição inicial na próxima linha
-            y += DISTANCIA_Y
+            if i % 2 == 0:
+                y += ESPESSURA_BORDA
+            else:
+                y += DISTANCIA_Y
+
     
     def pegar_coordenadas_robo(self): #coordenadas: x = 1140, y = 625
         
@@ -154,22 +186,49 @@ class TelaLabirinto:
                 x, y, _, _ = retangulo
                 return x, y
 
-    def direcao_valida(self, posicao):
-        x, y = posicao
+    def direcao_valida(self, key):
+        
+        if key == K_a or key == K_LEFT:
+            x = self.posicao_crianca_matriz[0] - 1
+            y = self.posicao_crianca_matriz[1]
+        elif key == K_d or key == K_RIGHT:
+            x = self.posicao_crianca_matriz[0] + 1
+            y = self.posicao_crianca_matriz[1]
+        elif key == K_w or key == K_UP:
+            x = self.posicao_crianca_matriz[0]
+            y = self.posicao_crianca_matriz[1] - 1
+        elif key == K_s or key == K_DOWN:
+            x = self.posicao_crianca_matriz[0]
+            y = self.posicao_crianca_matriz[1] + 1
+        
+        
+        print(f"Posição atual: {self.posicao_crianca_matriz}")
+        print(f"Posição a ser analisada: {x, y}")
+        print(self.tabuleiro[y][x])
 
-        for retangulo, cor in self.lista_rect_tabuleiro:
-            rect_x, rect_y, _, _ = retangulo
-            if x == rect_x and y == rect_y:
-                if cor == self.PRETO:
-                    return False
-                else:
-                    return True
+        if self.tabuleiro[y][x] not in ["+", "-", "|"]:
+            if key == K_a or key == K_LEFT:
+                x_novo = self.posicao_crianca_matriz[0] - 2
+                y_novo = self.posicao_crianca_matriz[1]
+            elif key == K_d or key == K_RIGHT:
+                x_novo = self.posicao_crianca_matriz[0] + 2
+                y_novo = self.posicao_crianca_matriz[1]
+            elif key == K_w or key == K_UP:
+                x_novo = self.posicao_crianca_matriz[0]
+                y_novo = self.posicao_crianca_matriz[1] - 2
+            elif key == K_s or key == K_DOWN:
+                x_novo = self.posicao_crianca_matriz[0]
+                y_novo = self.posicao_crianca_matriz[1] + 2
+
+            self.posicao_crianca_matriz = (x_novo, y_novo)
+            return True
+        else:
+            return False
 
     def gerar_item_aleatorio(self, segundos):
         if segundos % 10 == 0: #and segundos != 0
             item_novo = random.choice(ListaItens().lista_possibilidades_itens)
             # self.atualizar_labirinto()
-
 
 
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
@@ -193,20 +252,20 @@ class TelaLabirinto:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == K_a or event.key == K_LEFT:
-                    nova_posicao = (self.crianca.xcor - DISTANCIA_X, self.crianca.ycor)
-                    if self.direcao_valida(nova_posicao):
+                    nova_posicao = (self.crianca.xcor - DISTANCIA_X - ESPESSURA_BORDA, self.crianca.ycor)
+                    if self.direcao_valida(event.key):
                         self.crianca.atualizar(nova_posicao)
                 if event.key == K_d or event.key == K_RIGHT:
-                    nova_posicao = (self.crianca.xcor + DISTANCIA_X, self.crianca.ycor)
-                    if self.direcao_valida(nova_posicao):
+                    nova_posicao = (self.crianca.xcor + DISTANCIA_X + ESPESSURA_BORDA, self.crianca.ycor)
+                    if self.direcao_valida(event.key):
                         self.crianca.atualizar(nova_posicao)
                 if event.key == K_w or event.key == K_UP:
-                    nova_posicao = (self.crianca.xcor, self.crianca.ycor - DISTANCIA_Y)
-                    if self.direcao_valida(nova_posicao):
+                    nova_posicao = (self.crianca.xcor, self.crianca.ycor - DISTANCIA_Y - ESPESSURA_BORDA)
+                    if self.direcao_valida(event.key):
                         self.crianca.atualizar(nova_posicao)
                 if event.key == K_s or event.key == K_DOWN:
-                    nova_posicao = (self.crianca.xcor, self.crianca.ycor + DISTANCIA_Y)
-                    if self.direcao_valida(nova_posicao):
+                    nova_posicao = (self.crianca.xcor, self.crianca.ycor + DISTANCIA_Y + ESPESSURA_BORDA)
+                    if self.direcao_valida(event.key):
                         self.crianca.atualizar(nova_posicao)
 
             if event.type == MOUSEBUTTONDOWN:
@@ -245,7 +304,7 @@ class TelaLabirinto:
             self.crianca.xcor = crianca_x
             self.crianca.ycor = crianca_y
             self.crianca.rect.topleft = crianca_x, crianca_y
-            #print(crianca_x, crianca_y)
+            print(crianca_x, crianca_y)
 
         self.tempo_decorrido += 1
         segundos = self.tempo_decorrido // 60
