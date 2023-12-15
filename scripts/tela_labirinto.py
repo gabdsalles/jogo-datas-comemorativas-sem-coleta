@@ -344,8 +344,8 @@ class TelaLabirinto:
                 self.gerar_item_aleatorio(segundos_atual)
                 self.ultima_geracao = segundos_atual
 
-tela = TelaLabirinto(1280, 720)
-tela.executar()
+# tela = TelaLabirinto(1280, 720)
+# tela.executar()
 
 #TO-DO:
 # 1. Implementar algoritmo de IA no robô

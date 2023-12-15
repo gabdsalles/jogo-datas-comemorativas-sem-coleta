@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from fases import ListaFases
 import sys
 
 class TelaFases:
@@ -15,7 +16,6 @@ class TelaFases:
         self.PRETO = (0, 0, 0)
         self.AMARELO = (233, 255, 101)
 
-        self.porta_rect = pygame.rect.Rect(790, 300, 160, 320)
         self.fonte = pygame.font.Font(None, 36)
 
         self.fonte_titulo = pygame.font.Font("assets/fonts/archivo_black.ttf", 48)
@@ -24,11 +24,9 @@ class TelaFases:
         self.texto_voltar = self.fonte.render("Voltar", True, self.BRANCO)
         self.ret_voltar = pygame.rect.Rect(10, 10, 200, 50)
 
-        self.texto_jogar = self.fonte.render("Jogar", True, self.PRETO)
-        self.ret_jogar = pygame.rect.Rect(300, 10, 200, 50)
-        self.mostrar_botao_jogar = False
+        self.lista_fases = ListaFases().lista_fases
 
-        self.lista_retangulos = [pygame.rect.Rect(150, 150, 300, 200), pygame.rect.Rect(500, 150, 300, 200), pygame.rect.Rect(850, 150, 300, 200), pygame.rect.Rect(150, 400, 300, 200), pygame.rect.Rect(500, 400, 300, 200), pygame.rect.Rect(850, 400, 300, 200)]
+        self.locked = [False, True, True, True, True, True]
 
     def desenhar_grid(self):
         for x in range(0, self.LARGURA, 50):
@@ -38,7 +36,6 @@ class TelaFases:
             pygame.draw.line(self.tela, self.PRETO, (0, y), (self.LARGURA, y))
     
     def desenhar_tela(self):
-
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -48,8 +45,9 @@ class TelaFases:
                 if self.ret_voltar.collidepoint(pygame.mouse.get_pos()):
                     print("Clicou em Voltar")
 
-                if self.ret_jogar.collidepoint(pygame.mouse.get_pos()) and self.mostrar_botao_jogar:
-                    print("Clicou em Jogar")
+                for fase in self.lista_fases:
+                    if not self.locked[self.lista_fases.index(fase)] and fase.retangulo.collidepoint(pygame.mouse.get_pos()):
+                        print(f"Clicou na fase {fase.nome}")
 
         self.tela.fill(self.AMARELO)
 
@@ -58,10 +56,22 @@ class TelaFases:
 
         self.tela.blit(self.texto_titulo, (self.LARGURA // 2 - self.texto_titulo.get_width() // 2, 50))
 
-        for ret in self.lista_retangulos:
-            pygame.draw.rect(self.tela, self.PRETO, ret)
+        for fase in self.lista_fases:
+            pygame.draw.rect(self.tela, self.PRETO, fase.retangulo)
+            posicao_imagem = fase.retangulo.topleft
+            if fase.nome == "Em desenvolvimento":
+                imagem_preto_e_branco = pygame.image.load(fase.imagem).convert()
+                imagem_preto_e_branco.set_alpha(128)
+                self.tela.blit(imagem_preto_e_branco, (posicao_imagem[0], posicao_imagem[1]))
+            else:
+                self.tela.blit(pygame.image.load(fase.imagem), (posicao_imagem[0], posicao_imagem[1]))
+            pygame.draw.rect(self.tela, self.BRANCO, fase.retangulo, 5)
+            texto_fase = self.fonte.render(fase.nome, True, self.PRETO)
+            self.tela.blit(texto_fase, (fase.retangulo.centerx - texto_fase.get_width() // 2, fase.retangulo.bottom + 10))
+            if self.locked[self.lista_fases.index(fase)]:
 
-        #self.desenhar_grid()
+                imagem_locked = pygame.image.load("assets/imagens/locked.png")
+                self.tela.blit(imagem_locked, (fase.retangulo.centerx - imagem_locked.get_width() // 2, fase.retangulo.centery - imagem_locked.get_height() // 2))
 
         pygame.display.flip()
 
