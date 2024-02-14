@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from fases import ListaFases
 import sys
+from tela_labirinto import TelaLabirinto
 
 class TelaFases:
     def __init__(self, largura, altura):
@@ -48,6 +49,9 @@ class TelaFases:
                 for fase in self.lista_fases:
                     if not self.locked[self.lista_fases.index(fase)] and fase.retangulo.collidepoint(pygame.mouse.get_pos()):
                         print(f"Clicou na fase {fase.nome}")
+                        if (fase.nome == "Páscoa"):
+                            tela = TelaLabirinto(1280, 720)
+                            tela.executar()
 
         self.tela.fill(self.AMARELO)
 
@@ -79,5 +83,5 @@ class TelaFases:
         while True:
             self.desenhar_tela()
 
-telaFases = TelaFases(1280, 720)
-telaFases.executar()
+# telaFases = TelaFases(1280, 720)
+# telaFases.executar()

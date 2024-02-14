@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
-from tela_fases import TelaFases
+from tela_selecao_fases import TelaFases
 
 class TelaInicial:
     def __init__(self, largura, altura):

@@ -15,4 +15,4 @@ class Crianca(pygame.sprite.Sprite):
     def atualizar(self, posicao):
         self.xcor, self.ycor = posicao
         self.rect.topleft = self.xcor, self.ycor
-        print(f"Nova posição: {self.rect.topleft}")
+        #print(f"Nova posição: {self.rect.topleft}")
