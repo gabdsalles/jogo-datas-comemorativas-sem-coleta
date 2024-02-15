@@ -43,4 +43,5 @@ def string_to_matrix(maze_string):
 if __name__ == '__main__':
     maze_matrix = make_maze()
     for row in maze_matrix:
-        print(''.join(row))
+        # print(''.join(row))
+        pass

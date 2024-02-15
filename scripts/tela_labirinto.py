@@ -104,11 +104,11 @@ class TelaLabirinto:
         self.novos_itens_robo = []
         self.novas_imagens_robo = []
 
-        self.caminho = None
+        self.caminho = []
 
         self.lista_itens = ListaItens().lista_itens
         self.posicoes_itens_matriz = [(i, j) for i, linha in enumerate(self.tabuleiro) for j, celula in enumerate(linha) if celula == 'i']
-        print(self.posicoes_itens_matriz)
+        # print(self.posicoes_itens_matriz)
 
         self.lista_imagens = [pygame.image.load(item.imagem) for item in self.lista_itens]
 
@@ -172,8 +172,9 @@ class TelaLabirinto:
                             pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
                             if self.lista_itens[cont_itens].passou == False:
                                 self.tela.blit(self.lista_imagens[cont_itens], (x, y))
-                            # print(len(self.lista_itens))
                             self.lista_itens[cont_itens].posicao = (x, y)
+                            self.lista_itens[cont_itens].posicao_matriz = (i, j)
+                            #print(len(self.lista_itens))
 
                             self.lista_rect_tabuleiro.append(retangulo)
                             cont_itens += 1
@@ -199,12 +200,6 @@ class TelaLabirinto:
         # Desenhe as linhas verticais do grid
         for x in range(0, largura_tela, grid_largura):
             pygame.draw.line(tela, (100, 100, 100), (x, 0), (x, altura_tela))
-    
-    def achar_item_proximo(self):
-        item_proximo = ia_labirinto.encontrar_item_proximo(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
-        print(f"item próximo: {item_proximo}")
-        self.caminho = ia_labirinto.encontrar_caminho_eficiente(self.tabuleiro, self.posicao_robo_matriz, item_proximo)
-        print(f"caminho: {self.caminho}")
 
     def direcao_valida_crianca(self, key):
     
@@ -317,6 +312,8 @@ class TelaLabirinto:
                 item.dono = "jogador"
                 print(item.nome, item.dono, item.passou, item.posicao)
                 self.novos_itens_jogador.append(item)
+                posicao_matriz = item.posicao_matriz
+                self.posicoes_itens_matriz.remove(posicao_matriz)
                 self.novas_imagens_jogador.append(pygame.image.load(item.imagem))
             
             if posicao_robo == item.posicao and item.passou == False:
@@ -327,6 +324,9 @@ class TelaLabirinto:
                 print(item.nome, item.dono, item.passou, item.posicao)
                 self.novos_itens_robo.append(item)
                 self.novas_imagens_robo.append(pygame.image.load(item.imagem))
+                posicao_matriz = item.posicao_matriz
+                self.posicoes_itens_matriz.remove(posicao_matriz)
+                self.caminho = ia_labirinto.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
                 
 
         self.tela.fill(self.PRETO)
@@ -355,41 +355,38 @@ class TelaLabirinto:
         tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
         self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
 
-        # A-Estrela Robô
-        if self.tempo_decorrido % 60 == 0:
-            self.achar_item_proximo()
+        if self.tempo_decorrido % 60 == 0 or self.caminho is None:
 
-        if self.tempo_decorrido % 60 == 0 and self.caminho is not None:
+            self.caminho = ia_labirinto.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
+        
+        if self.tempo_decorrido % 20 == 0 and self.caminho is not None and len(self.caminho) > 0:
+
+            x_novo = 0
+            y_novo = 0
             direcao = determinar_posicao_robo(self.caminho)
-            
+            self.caminho.pop(0)
             if direcao == 'left':
                 nova_posicao = (self.robo.xcor - DISTANCIA_X - ESPESSURA_BORDA, self.robo.ycor)
                 self.robo.atualizar(nova_posicao)
-                x_novo = self.posicao_robo_matriz[0] - 2
-                y_novo = self.posicao_robo_matriz[1]
+                x_novo = self.posicao_robo_matriz[0]
+                y_novo = self.posicao_robo_matriz[1] - 2
             if direcao == 'right':
                 nova_posicao = (self.robo.xcor + DISTANCIA_X + ESPESSURA_BORDA, self.robo.ycor)
                 self.robo.atualizar(nova_posicao)
-                x_novo = self.posicao_robo_matriz[0] + 2
-                y_novo = self.posicao_robo_matriz[1]
+                x_novo = self.posicao_robo_matriz[0]
+                y_novo = self.posicao_robo_matriz[1] + 2
             if direcao == "up":
                 nova_posicao = (self.robo.xcor, self.robo.ycor - DISTANCIA_Y - ESPESSURA_BORDA)
                 self.robo.atualizar(nova_posicao)
-                x_novo = self.posicao_robo_matriz[0]
-                y_novo = self.posicao_robo_matriz[1] - 2
+                x_novo = self.posicao_robo_matriz[0] - 2
+                y_novo = self.posicao_robo_matriz[1]
             if direcao == "down":
                 nova_posicao = (self.robo.xcor, self.robo.ycor + DISTANCIA_Y + ESPESSURA_BORDA)
                 self.robo.atualizar(nova_posicao)
-                x_novo = self.posicao_robo_matriz[0]
-                y_novo = self.posicao_robo_matriz[1] + 2
-            if direcao == "none":
-                x_novo = self.posicao_robo_matriz[0]
+                x_novo = self.posicao_robo_matriz[0] + 2
                 y_novo = self.posicao_robo_matriz[1]
-                print("NONE")
 
             self.posicao_robo_matriz = (x_novo, y_novo)
-            self.caminho.pop(0)
-
             
 
         self.todas_sprites.draw(self.tela)

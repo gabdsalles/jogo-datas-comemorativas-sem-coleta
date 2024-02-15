@@ -6,6 +6,7 @@ class Item:
         self.passou = False #variável que vê se o jogador passou pelo item
         self.dono = None #quem passou pelo item, o jogador ou o robô
         self.posicao = None
+        self.posicao_matriz = None
 
 class ListaItens:
     

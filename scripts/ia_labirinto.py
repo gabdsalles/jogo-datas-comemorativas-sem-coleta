@@ -1,81 +1,106 @@
-from queue import PriorityQueue
+from collections import deque
+import random
 
-def heuristica(pos_atual, pos_alvo):
-    """Calcula a distância de Manhattan entre dois pontos."""
-    x1, y1 = pos_atual
-    x2, y2 = pos_alvo
-    return abs(x1 - x2) + abs(y1 - y2)
+TABULEIRO = [
+    "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+",
+    "|  i    |       |     |   |    i  |   | |   |",
+    "+ + +-+ +-+-+-+ + + +-+ + + +-+-+ + + + + + +",
+    "| | | |   |   | | |   | | | |   |   | |   | |",
+    "+-+ + +-+ + + + + +-+ + + +-+ +-+-+-+ + +-+ +",
+    "|   | |   | | | |   |   |      i  |   | |   |",
+    "+ +-+ + +-+ + + + +-+-+-+-+-+ + + + +-+ + + +",
+    "| |   |     | |   |   |     | | | |   | | | |",
+    "+ + +-+-+-+-+ +-+-+ + + +-+ +-+ + +-+ + + + +",
+    "| |    i    |       | | | |   | |   | | | | |",
+    "+ +-+-+ +-+-+ +-+-+-+ + + +-+ + + +-+ + + + +",
+    "| |   |       |   |   | |   |  i| |   | | | |",
+    "+ + + +-+-+-+-+ + + +-+ + + +-+ +-+ +-+-+ + +",
+    "| | |   |      i| | |   | |     |   |     | |",
+    "+ + +-+ + +-+-+-+ + + +-+-+-+-+ + +-+ + +-+ +",
+    "| |   |   |   |   | |  i   i  | |   | | | | |",
+    "+ +-+ +-+-+ +-+ +-+ + +-+-+-+ + +-+ +-+ + + +",
+    "|   |   |  i|   |   |  i  |   | | |     |  i|",
+    "+-+ +-+ +-+ + +-+-+ +-+-+ + +-+ + +-+-+-+ +-+",
+    "|     |     |     | | |   | |  i| |   |   | |",
+    "+ +-+-+-+-+ +-+-+ + + + +-+ + +-+ + + + +-+ +",
+    "|      i  | |   | | |     | |     | |   |   |",
+    "+-+-+-+ +-+-+ +-+ + +-+-+-+ +-+-+ + +-+-+ +-+",
+    "|  i| |   |     | |    i    |   | | |   |   |",
+    "+ + + + + +-+-+ + +-+-+-+ +-+-+ + + + + +-+ +",
+    "| |   | |      i|  i  | | |   |   |   | |   |",
+    "+ +-+-+ +-+-+-+-+-+-+ + + + + + +-+-+-+ + + +",
+    "|     |     |   |     |   | | |       | | | |",
+    "+ +-+ +-+-+ +-+ + +-+-+-+-+ + +-+-+-+ + + +-+",
+    "| | |     | |   | |         |   |  i| | |   |",
+    "+ + +-+ +-+ + + + + +-+-+-+-+-+ + + +-+ +-+ +",
+    "|     |       | |             |   |         |",
+    "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+]
 
-def encontrar_item_proximo(tabuleiro, posicao_robo, posicoes_itens):
-    fila_prioridade = PriorityQueue()
-    fila_prioridade.put((0, posicao_robo))
+posicoes_itens_matriz = [(i, j) for i, linha in enumerate(TABULEIRO) for j, celula in enumerate(linha) if celula == 'i']
+
+def direcao_valida_robo(pos_robo, tabuleiro):
+    
+    possible_directions = ["left", "right", "up", "down"]
+    valid_directions = []
+    x = pos_robo[0]
+    y = pos_robo[1]
+    for direction in possible_directions:
+
+        if direction == "up":
+            x = pos_robo[0] - 1
+            y = pos_robo[1]
+            #print(f"up: x={x}, y={y}")
+        elif direction == "left":
+            x = pos_robo[0]
+            y = pos_robo[1] - 1
+            #print(f"left: x={x}, y={y}")
+        elif direction == "right":
+            x = pos_robo[0]
+            y = pos_robo[1] + 1
+            #print(f"right: x={x}, y={y}")
+        elif direction == "down":
+            x = pos_robo[0] + 1
+            y = pos_robo[1]
+            #print(f"down: x={x}, y={y}")
+        
+        if 0 <= x < len(tabuleiro) and 0 <= y < len(tabuleiro[0]) and tabuleiro[x][y] == " ":
+            valid_directions.append(direction)
+
+        
+    print(f"Direções válidas: {valid_directions}")
+    return valid_directions
+
+from collections import deque
+
+def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
     visitados = set()
-    custo = {posicao_robo: 0}
-    item_proximo = None
+    fila = deque([(pos_inicial, [])])  # Inicializa a fila com a posição inicial e o caminho até ela
 
-    while not fila_prioridade.empty():
-        _, pos_atual = fila_prioridade.get()
+    while fila:
+        pos_atual, caminho_atual = fila.popleft()
+        x, y = pos_atual
 
-        if pos_atual in posicoes_itens:
-            item_proximo = pos_atual
-            break
-
-        for direcao in [(0, 2), (0, -2), (2, 0), (-2, 0)]:
-            x, y = pos_atual[0] + direcao[0], pos_atual[1] + direcao[1]
-            nova_pos = (x, y)
-
-            if 0 <= x < len(tabuleiro) and 0 <= y < len(tabuleiro[0]) and tabuleiro[x][y] not in ['+', '-', '|']:
-                novo_custo = custo[pos_atual] + 1
-
-                if novo_custo < custo.get(nova_pos, float('inf')):
-                    custo[nova_pos] = novo_custo
-                    prioridade = novo_custo + heuristica(nova_pos, posicoes_itens[0])
-                    fila_prioridade.put((prioridade, nova_pos))
-                    visitados.add(pos_atual)
-
-    return item_proximo
-
-def checar_paredes(tabuleiro, x, y):
-
-    if tabuleiro[x][y] in ["+", "-", "|"]:
-        return True
-    else:
-        return False
-
-def encontrar_caminho_eficiente(tabuleiro, posicao_robo, posicao_alvo):
-    fila_prioridade = PriorityQueue()
-    fila_prioridade.put((0, posicao_robo))
-    visitados = set()
-    custo = {posicao_robo: 0}
-    antecessor = {posicao_robo: None}
-
-    while not fila_prioridade.empty():
-        _, pos_atual = fila_prioridade.get()
-
-        if pos_atual == posicao_alvo:
-            caminho = []
-            while pos_atual:
-                caminho.append(pos_atual)
-                pos_atual = antecessor[pos_atual]
-            caminho.reverse()
+        if pos_atual in pos_itens:
+            caminho = caminho_atual + [pos_atual]
+            for ponto in caminho:
+                x = ponto[0]
+                y = ponto[1]
+                if x % 2 == 0 or y % 2 == 0:
+                    caminho.remove(ponto)
+            
+            print(caminho)
             return caminho
 
-        for direcao in [(0, 2), (0, -2), (2, 0), (-2, 0)]:
+        direcoes = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Direções: direita, baixo, esquerda, cima
+        for dx, dy in direcoes:
+            nova_pos = (x + dx, y + dy)
+            if 0 <= nova_pos[0] < len(tabuleiro) and 0 <= nova_pos[1] < len(tabuleiro[0]) and tabuleiro[nova_pos[0]][nova_pos[1]] not in  ["+", "|", "-"]:
+                if nova_pos not in visitados:
+                    visitados.add(nova_pos)
+                    fila.append((nova_pos, caminho_atual + [pos_atual]))  # Adiciona a nova posição à fila com o caminho até ela
 
-            x, y = pos_atual[0] + direcao[0], pos_atual[1] + direcao[1]
-            nova_pos = (x, y)
-
-            if 0 <= x < len(tabuleiro) and 0 <= y < len(tabuleiro[0]) and tabuleiro[x][y] not in ['+', '-', '|']:
-                novo_custo = custo[pos_atual] + 1
-
-                if novo_custo < custo.get(nova_pos, float('inf')):
-                    custo[nova_pos] = novo_custo
-                    prioridade = novo_custo + heuristica(nova_pos, posicao_alvo)
-                    fila_prioridade.put((prioridade, nova_pos))
-                    antecessor[nova_pos] = pos_atual
-                    visitados.add(pos_atual)
-
-    return None
-
-# não deu certo. a ideia é fazer com que o objetivo do robô seja não encontrar o item mais próximo,
-# mas sim percorrer o tabuleiro todo. aí, controla pelas paredes.
+    return None  # Retorna None se nenhum caminho foi encontrado
+# Exemplo de uso:
+caminho = encontrar_caminho_para_item(TABULEIRO, (31, 43), posicoes_itens_matriz)
+print("Caminho encontrado:", caminho)
