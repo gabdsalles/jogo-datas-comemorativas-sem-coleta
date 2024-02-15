@@ -328,7 +328,7 @@ class TelaLabirinto:
                 self.posicoes_itens_matriz.remove(posicao_matriz)
                 self.caminho = ia_labirinto.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
                 
-
+ 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
