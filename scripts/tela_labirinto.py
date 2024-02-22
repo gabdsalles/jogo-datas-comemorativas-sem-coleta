@@ -1,13 +1,13 @@
 import pygame
 from pygame.locals import *
 import sys
-from crianca import Crianca
+from sprites.crianca import Crianca
 import maze_maker
-from robo import Robo
-from labirinto.itens import Item, ListaItens
+from sprites.robo import Robo
+from labirinto.itens import ListaItens
 import random
-import ia_labirinto
-from logica_labirinto import pegar_coordenadas_personagem, pegar_coordenadas_robo, determinar_posicao_robo
+import labirinto.ia_labirinto as ia
+import labirinto.logica_labirinto as logica
 
 DISTANCIA_X = 30
 DISTANCIA_Y = 30
@@ -78,7 +78,7 @@ class TelaLabirinto:
 
         self.itens_robo_texto = self.fonte.render(f"Robô: {self.pontos_robo}/{self.pontos_totais}", True, self.PRETO)
         self.itens_robo_x = 90
-        self.itens_robo_y = 430
+        self.itens_robo_y = 380
 
         self.tempo = self.fonte.render("00:00", True, self.PRETO)
         self.tempo_x = 100
@@ -95,7 +95,7 @@ class TelaLabirinto:
         self.lista_posicoes_imagens_jogador = [(30, 260), (80, 260), (35, 220), (70, 220), (55, 180), (180, 260), 
         (230, 260), (185, 220), (220, 220), (205, 180)]
 
-        self.lista_posicoes_imagens_robo = [(x, y + 325) for x, y in self.lista_posicoes_imagens_jogador]
+        self.lista_posicoes_imagens_robo = [(x, y + 275) for x, y in self.lista_posicoes_imagens_jogador]
         self.cont_lista_jogador = 0
 
         self.novos_itens_jogador = []
@@ -269,8 +269,6 @@ class TelaLabirinto:
         else:
             return False
 
-        
-
     def desenhar_tela(self):
 
         self.relogio.tick(FPS)
@@ -326,7 +324,7 @@ class TelaLabirinto:
                 self.novas_imagens_robo.append(pygame.image.load(item.imagem))
                 posicao_matriz = item.posicao_matriz
                 self.posicoes_itens_matriz.remove(posicao_matriz)
-                self.caminho = ia_labirinto.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
+                self.caminho = ia.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
                 
  
         self.tela.fill(self.PRETO)
@@ -336,14 +334,14 @@ class TelaLabirinto:
         self.desenhar_labirinto()
 
         if self.robo.xcor == 0 and self.robo.ycor == 0:
-            robo_x, robo_y = pegar_coordenadas_robo(self.lista_rect_tabuleiro)
+            robo_x, robo_y = logica.pegar_coordenadas_robo(self.lista_rect_tabuleiro)
             #print(robo_x, robo_y)
             self.robo.xcor = robo_x
             self.robo.ycor = robo_y
             self.robo.rect.topleft = robo_x, robo_y
 
         if self.crianca.xcor == 0 and self.crianca.ycor == 0:
-            crianca_x, crianca_y = pegar_coordenadas_personagem(self.lista_rect_tabuleiro)
+            crianca_x, crianca_y = logica.pegar_coordenadas_personagem(self.lista_rect_tabuleiro)
             self.crianca.xcor = crianca_x
             self.crianca.ycor = crianca_y
             self.crianca.rect.topleft = crianca_x, crianca_y
@@ -357,13 +355,13 @@ class TelaLabirinto:
 
         if self.tempo_decorrido % 300 == 0 or self.caminho is None:
 
-            self.caminho = ia_labirinto.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
+            self.caminho = ia.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
         
         if self.tempo_decorrido % 60 == 0 and self.caminho is not None and len(self.caminho) > 0:
 
             x_novo = 0
             y_novo = 0
-            direcao = determinar_posicao_robo(self.caminho)
+            direcao = logica.determinar_posicao_robo(self.caminho)
             self.caminho.pop(0)
             if direcao == 'left':
                 nova_posicao = (self.robo.xcor - DISTANCIA_X - ESPESSURA_BORDA, self.robo.ycor)
@@ -398,8 +396,8 @@ class TelaLabirinto:
         self.tela.blit(self.tempo, (self.tempo_x, self.tempo_y))
         self.tela.blit(self.arvore_jogador_1, (-30, 130))
         self.tela.blit(self.arvore_jogador_2, (120, 130))
-        self.tela.blit(self.arvore_robo_1, (-30, 460))
-        self.tela.blit(self.arvore_robo_2, (120, 460))
+        self.tela.blit(self.arvore_robo_1, (-30, 410))
+        self.tela.blit(self.arvore_robo_2, (120, 410))
 
         # virar função depois
         cont = 0

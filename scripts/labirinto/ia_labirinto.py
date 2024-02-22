@@ -1,5 +1,4 @@
 from collections import deque
-import random
 
 TABULEIRO = [
     "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+",
@@ -75,8 +74,7 @@ from collections import deque
 
 def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
     visitados = set()
-    fila = deque([(pos_inicial, [])])  # Inicializa a fila com a posição inicial e o caminho até ela
-
+    fila = deque([(pos_inicial, [])]) 
     while fila:
         pos_atual, caminho_atual = fila.popleft()
         x, y = pos_atual
@@ -92,15 +90,15 @@ def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
             # print(caminho)
             return caminho
 
-        direcoes = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Direções: direita, baixo, esquerda, cima
+        direcoes = [(0, 1), (1, 0), (0, -1), (-1, 0)]  
         for dx, dy in direcoes:
             nova_pos = (x + dx, y + dy)
             if 0 <= nova_pos[0] < len(tabuleiro) and 0 <= nova_pos[1] < len(tabuleiro[0]) and tabuleiro[nova_pos[0]][nova_pos[1]] not in  ["+", "|", "-"]:
                 if nova_pos not in visitados:
                     visitados.add(nova_pos)
-                    fila.append((nova_pos, caminho_atual + [pos_atual]))  # Adiciona a nova posição à fila com o caminho até ela
+                    fila.append((nova_pos, caminho_atual + [pos_atual])) 
 
-    return None  # Retorna None se nenhum caminho foi encontrado
-# Exemplo de uso:
+    return None  
+
 caminho = encontrar_caminho_para_item(TABULEIRO, (31, 43), posicoes_itens_matriz)
 print("Caminho encontrado:", caminho)

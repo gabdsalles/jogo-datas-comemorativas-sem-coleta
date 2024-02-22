@@ -1,10 +1,9 @@
+import random
 import pygame
 from pygame.locals import *
 import sys
-from robo import Robo
-from crianca import Crianca
-from carta import Tabuleiro, Carta
-import ia_jogo_memoria
+from carta import Tabuleiro
+import jogo_memoria.ia_jogo_memoria as ia
 
 LARGURA = 1280
 ALTURA = 720
@@ -33,19 +32,12 @@ class TelaJogoMemoria:
         self.AZUL_FUNDO = (0, 61, 80)
         self.AMARELO2 = (233, 255, 101)
 
-        self.flag = [False, False, False, False, False]
-        self.cont_flag = 0
-
         self.pontos_jogador = 0
         self.pontos_robo = 0
         self.pontos_totais = 5
 
-        self.robo = Robo((0, 0))
-        self.todas_sprites = pygame.sprite.Group()
-        self.todas_sprites.add(self.robo)
-
-        self.crianca = Crianca((0, 0))
-        self.todas_sprites.add(self.crianca)
+        self.lista_cartas_jogador = []
+        self.lista_cartas_robo = []
 
         self.fonte = pygame.font.Font(None, 36)
         self.fundo_rect = pygame.rect.Rect(0, 0, 300, 720)
@@ -70,7 +62,7 @@ class TelaJogoMemoria:
 
         self.itens_robo_texto = self.fonte.render(f"Robô: {self.pontos_robo}/{self.pontos_totais}", True, self.PRETO)
         self.itens_robo_x = 90
-        self.itens_robo_y = 430
+        self.itens_robo_y = 380
 
         self.texto_jogador = self.fonte.render("É sua vez de jogar!", True, self.PRETO)
         self.texto_jogador_x = 500
@@ -91,6 +83,9 @@ class TelaJogoMemoria:
         
         self.qtd_jogadas_jogador = 0
         self.qtd_jogadas_robo = 0
+
+        self.posicoes_cartas_jogador = [(30, 150), (120, 150), (210, 150), (60, 250), (150, 250)]
+        self.posicoes_cartas_robo = [(30, 430), (120, 430), (210, 430), (60, 580), (150, 580)]
 
     def desenhar_cartas(self):
 
@@ -134,7 +129,10 @@ class TelaJogoMemoria:
             self.tabuleiro.cartas_viradas = 0
             self.tabuleiro.lista_viradas.append(carta1)
             self.tabuleiro.lista_viradas.append(carta2)
+            self.lista_cartas_jogador.append(carta1)
             self.tempo_jogada = None
+            self.qtd_jogadas_jogador += 1
+            ia.limpar_cartas_lembradas()
 
         else:
             #print(self.tempo_decorrido - self.tempo_jogada)
@@ -147,6 +145,7 @@ class TelaJogoMemoria:
                 self.vez_jogador = False
                 self.vez_robo = True
                 self.texto_jogador = self.fonte.render("Agora, é a vez do robô.", True, self.PRETO)
+                self.qtd_jogadas_jogador += 1
             else:
                 self.texto_jogador = self.fonte.render("Não foi dessa vez!", True, self.PRETO)
                 # print(self.tempo_decorrido - self.tempo_jogada)
@@ -154,8 +153,8 @@ class TelaJogoMemoria:
     def jogada_robo(self):
 
         if self.vez_robo:
-            carta1, carta2 = ia_jogo_memoria.escolher_cartas(self.tabuleiro.lista_cartas)
-            print(f"Carta 1: {carta1.nome}, Carta 2: {carta2.nome}")
+            carta1, carta2 = ia.escolher_cartas(self.tabuleiro.lista_cartas)
+            # print(f"Carta 1: {carta1.nome}, Carta 2: {carta2.nome}")
             self.qtd_jogadas_robo += 1
             self.tabuleiro.cartas_viradas = 2
             return carta1, carta2
@@ -176,7 +175,9 @@ class TelaJogoMemoria:
                 self.tabuleiro.cartas_viradas = 0
                 self.tabuleiro.lista_viradas.append(carta1)
                 self.tabuleiro.lista_viradas.append(carta2)
+                self.lista_cartas_robo.append(carta1)
                 self.tempo_jogada = None
+                ia.limpar_cartas_lembradas()
             else:
                 carta1.virada = False
                 carta2.virada = False
@@ -185,7 +186,44 @@ class TelaJogoMemoria:
                 self.vez_jogador = True
                 self.texto_jogador = self.fonte.render("É sua vez de jogar!", True, self.PRETO)
                 self.tempo_jogada = None
+                ia.atualizar_cartas_lembradas(random.choice([carta1, carta2]))
 
+
+    def desenhar_cartas_jogador(self):
+
+        largura_carta = 60
+        altura_carta = 100
+        tamanho_retangulo = (largura_carta, altura_carta)
+
+        for i, carta in enumerate(self.lista_cartas_jogador):
+            x = self.posicoes_cartas_jogador[i][0]
+            y = self.posicoes_cartas_jogador[i][1]
+
+            rect = pygame.Rect(x, y, largura_carta, altura_carta)
+            pygame.draw.rect(self.tela, self.AZUL_FUNDO, rect, border_radius=30)
+
+            imagem_carta = carta.imagem
+            imagem_carta = pygame.transform.scale(imagem_carta, tamanho_retangulo)
+
+            self.tela.blit(imagem_carta, (x, y))
+
+    def desenhar_cartas_robo(self):
+
+        largura_carta = 60
+        altura_carta = 100
+        tamanho_retangulo = (largura_carta, altura_carta)
+
+        for i, carta in enumerate(self.lista_cartas_robo):
+            x = self.posicoes_cartas_robo[i][0]
+            y = self.posicoes_cartas_robo[i][1]
+
+            rect = pygame.Rect(x, y, largura_carta, altura_carta)
+            pygame.draw.rect(self.tela, self.AZUL_FUNDO, rect, border_radius=30)
+
+            imagem_carta = carta.imagem
+            imagem_carta = pygame.transform.scale(imagem_carta, tamanho_retangulo)
+
+            self.tela.blit(imagem_carta, (x, y))
 
     def desenhar_tela(self):
 
@@ -230,8 +268,6 @@ class TelaJogoMemoria:
 
         self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
 
-        self.todas_sprites.draw(self.tela)
-
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
         self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
@@ -240,6 +276,9 @@ class TelaJogoMemoria:
         
         pygame.draw.rect(self.tela, self.AMARELO, (self.texto_jogador_x-10, self.texto_jogador_y-10, self.rect_texto_jogador.width+100, self.rect_texto_jogador.height+20), border_radius=20)
         self.tela.blit(self.texto_jogador, (self.texto_jogador_x, self.texto_jogador_y))
+
+        self.desenhar_cartas_jogador()
+        self.desenhar_cartas_robo()
 
         pygame.display.flip()
 
