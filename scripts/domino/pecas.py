@@ -16,9 +16,9 @@ class Peca:
         self.dono = None
 
         if cor1 == cor2:
-            self.tipo = "simples"
-        else:
             self.tipo = "dupla"
+        else:
+            self.tipo = "simples"
 
 
 
@@ -39,7 +39,7 @@ class Pecas:
             cor_figura = cores[figura]
             nome = figura
             if nome not in pecas_criadas:
-                peca = Peca(f"assets/imagens/pascoa/{figura}.png", f"assets/imagens/pascoa/{figura}.png", f"{nome} {nome}", cor_figura, cor_figura)
+                peca = Peca(f"assets/imagens/pascoa_horizontal/{figura}.png", f"assets/imagens/pascoa_horizontal/{figura}.png", f"{nome} {nome}", cor_figura, cor_figura)
                 self.lista_pecas.append(peca)
                 pecas_criadas.add(nome)
 
@@ -50,7 +50,7 @@ class Pecas:
                     nome = f'{figura} {outra_figura}'
                     nome_inverso = f'{outra_figura} {figura}'
                     if nome not in pecas_criadas and nome_inverso not in pecas_criadas:
-                        peca = Peca(f"assets/imagens/pascoa/{figura}.png", f"assets/imagens/pascoa/{outra_figura}.png", nome, cor_figura, cor_outra_figura)
+                        peca = Peca(f"assets/imagens/pascoa_horizontal/{figura}.png", f"assets/imagens/pascoa_horizontal/{outra_figura}.png", nome, cor_figura, cor_outra_figura)
                         self.lista_pecas.append(peca)
                         pecas_criadas.add(nome)
                         pecas_criadas.add(nome_inverso)
