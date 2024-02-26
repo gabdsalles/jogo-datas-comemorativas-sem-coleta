@@ -13,10 +13,11 @@ posicoes_retangulos_jogador = {
 
 class Posicao:
 
-    def __init__(self, posicao_borda, posicao_retangulo, posicao_imagem):
+    def __init__(self, posicao_borda, posicao_retangulo, posicao_imagem, tipo=None):
 
         self.posicao_borda = posicao_borda
         self.posicao_retangulo = posicao_retangulo
         self.posicao_imagem = posicao_imagem
+        self.tipo = tipo
 
 POSICAO_INICIAL = Posicao((760, 307, 70, 5), (760, 245, 70, 130), (760, 245))
