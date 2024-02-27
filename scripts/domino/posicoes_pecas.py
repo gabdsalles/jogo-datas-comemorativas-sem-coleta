@@ -13,11 +13,17 @@ posicoes_retangulos_jogador = {
 
 class Posicao:
 
-    def __init__(self, posicao_borda, posicao_retangulo, posicao_imagem, tipo=None):
+    def __init__(self, posicao_borda, posicao_retangulo, posicao_imagem1, posicao_imagem2, tipo=None):
 
         self.posicao_borda = posicao_borda
         self.posicao_retangulo = posicao_retangulo
-        self.posicao_imagem = posicao_imagem
+        self.posicao_imagem1 = posicao_imagem1
+        self.posicao_imagem2 = posicao_imagem2
         self.tipo = tipo
 
-POSICAO_INICIAL = Posicao((760, 307, 70, 5), (760, 245, 70, 130), (760, 245))
+posicoes_borda_esquerda = [(695, 145, 5, 70), (565, 145, 5, 70), (435, 145, 5, 70), (370, 275, 70, 5), (370, 405, 70, 5), (435, 470, 5, 70), (565, 470, 5, 70), (695, 470, 5, 70)]
+posicoes_borda_direita = [(890, 145, 5, 70), (1020, 145, 5, 70), (1155, 145, 5, 70), (1155, 275, 70, 5), (1155, 405, 70, 5), (1155, 470, 5, 70), (1020, 470, 5, 70), (890, 470, 5, 70)]
+posicoes_imagem_esquerda = [(695, 145), (630, 145), (565, 145), (500, 145), (435, 145), (370, 145), (370, 210), (370, 275), (370, 340), (370, 405), (370, 470), (435, 470), (500, 470), (565, 470), (630, 470), (695, 470)]
+posicoes_imagem_direita = [(825, 145), (890, 145), (955, 145), (1020, 145), (1090, 145), (1155, 145), (1155, 210), (1155, 275), (1155, 340), (1155, 405), (1155, 470), (1090, 470), (1020, 470), (955, 470), (890, 470), (825, 470)]
+posicoes_retangulo_esquerda = [(630, 145, 130, 70), (500, 145, 130, 70), (370, 145, 130, 70), (370, 210, 70, 130), (370, 340, 70, 130), (370, 470, 130, 70), (500, 470, 130, 70), (630, 470, 130, 70)]
+posicoes_retangulo_direita = [(825, 145, 130, 70), (955, 145, 130, 70), (1085, 145, 130, 70), (1145, 210, 70, 130), (1145, 340, 70, 130), (1085, 470, 130, 70), (955, 470, 130, 70), (825, 470, 130, 70)]

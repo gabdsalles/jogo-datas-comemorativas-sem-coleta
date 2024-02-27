@@ -15,7 +15,6 @@ class Peca:
         self.cor1 = cor1
         self.cor2 = cor2
         self.dono = None
-        self.direcao = None
 
         if cor1 == cor2:
             self.tipo = "dupla"
@@ -28,17 +27,17 @@ class Pecas:
 
     def __init__(self):
         self.lista_pecas = []
+        self.cores = {'cruz': AZUL, 'ramos': VERMELHO, 'chocolate': MARROM, 'coelho': AMARELO, 'cesta': LARANJA, 'ovo': VERDE}
         self.inicializar_pecas()
 
     def inicializar_pecas(self):
         figuras = ['cruz', 'ramos', 'chocolate', 'coelho', 'cesta', 'ovo']
-        cores = {'cruz': AZUL, 'ramos': VERMELHO, 'chocolate': MARROM, 'coelho': AMARELO, 'cesta': LARANJA, 'ovo': VERDE}
 
         pecas_criadas = set()
 
         # Adicione a peça com as duas mesmas figuras
         for figura in figuras:
-            cor_figura = cores[figura]
+            cor_figura = self.cores[figura]
             nome = figura
             if nome not in pecas_criadas:
                 peca = Peca(f"assets/imagens/pascoa_horizontal/{figura}.png", f"assets/imagens/pascoa_horizontal/{figura}.png", nome, nome, cor_figura, cor_figura)
@@ -48,7 +47,7 @@ class Pecas:
             # Adicione a peça com duas figuras diferentes
             for outra_figura in figuras:
                 if figura != outra_figura:
-                    cor_outra_figura = cores[outra_figura]
+                    cor_outra_figura = self.cores[outra_figura]
                     nome = f'{figura} {outra_figura}'
                     nome_inverso = f'{outra_figura} {figura}'
                     if nome not in pecas_criadas and nome_inverso not in pecas_criadas:
