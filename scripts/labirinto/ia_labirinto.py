@@ -70,8 +70,6 @@ def direcao_valida_robo(pos_robo, tabuleiro):
     print(f"Direções válidas: {valid_directions}")
     return valid_directions
 
-from collections import deque
-
 def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
     visitados = set()
     fila = deque([(pos_inicial, [])]) 

@@ -3,6 +3,8 @@ import pygame
 from pygame.locals import *
 from collections import deque
 import sys
+import copy
+import domino.ia_domino as ia
 
 from domino.pecas import Pecas
 from domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
@@ -53,6 +55,14 @@ class TelaDomino:
         self.lista_bordas_tabuleiro = deque()
         self.lista_bordas_tabuleiro.append(POSICAO_INICIAL.posicao_borda)
         self.nomes_pecas_tabuleiro = deque()
+
+        self.posicoes_retangulos_jogador = copy.deepcopy(posicoes_retangulos_jogador)
+        self.posicoes_borda_esquerda = copy.deepcopy(posicoes_borda_esquerda)
+        self.posicoes_borda_direita = copy.deepcopy(posicoes_borda_direita)
+        self.posicoes_imagem_esquerda = copy.deepcopy(posicoes_imagem_esquerda)
+        self.posicoes_imagem_direita = copy.deepcopy(posicoes_imagem_direita)
+        self.posicoes_retangulo_esquerda = copy.deepcopy(posicoes_retangulo_esquerda)
+        self.posicoes_retangulo_direita = copy.deepcopy(posicoes_retangulo_direita)
 
         self.titulo_fase_texto = self.fonte.render("Páscoa", True, self.PRETO)
         self.titulo_fase_x = 100
@@ -185,31 +195,65 @@ class TelaDomino:
             self.pecas_pra_direita += 1
             self.incluir_peca_tabuleiro(peca, "direita")   
     
+    def limpar_tabuleiro(self, peca):
+
+        self.posicoes_retangulo_esquerda = copy.deepcopy(posicoes_retangulo_esquerda)
+        self.posicoes_retangulo_direita = copy.deepcopy(posicoes_retangulo_direita)
+        self.posicoes_imagem_esquerda = copy.deepcopy(posicoes_imagem_esquerda)
+        self.posicoes_imagem_direita = copy.deepcopy(posicoes_imagem_direita)
+        self.posicoes_borda_esquerda = copy.deepcopy(posicoes_borda_esquerda)
+        self.posicoes_borda_direita = copy.deepcopy(posicoes_borda_direita)
+        self.lista_retangulos_tabuleiro = deque()
+        self.lista_retangulos_tabuleiro.append(POSICAO_INICIAL.posicao_retangulo)
+        self.lista_imagens_tabuleiro = deque()
+        self.lista_imagens_tabuleiro.append(POSICAO_INICIAL.posicao_imagem1)
+        self.lista_imagens_tabuleiro.append(POSICAO_INICIAL.posicao_imagem2)
+        self.lista_bordas_tabuleiro = deque()
+        self.lista_bordas_tabuleiro.append(POSICAO_INICIAL.posicao_borda)
+        self.nomes_pecas_tabuleiro = deque()
+        self.esquerda_tabuleiro = peca.nome1
+        self.direita_tabuleiro = peca.nome2
+        self.nomes_pecas_tabuleiro.append(peca.nome1)
+        self.nomes_pecas_tabuleiro.append(peca.nome2)
+        self.lista_pecas.extend(self.pecas_tabuleiro)
+        self.lista_pecas.remove(peca)
+        self.pecas_tabuleiro = deque()
+        self.compras_texto = self.fonte.render(f"Pilha de compras: {len(self.lista_pecas)} ", True, self.PRETO)
+
+
     def incluir_peca_tabuleiro(self, peca, posicao):
+
+        if self.pecas_pra_esquerda == 9 or self.pecas_pra_direita == 9: #acabou as posições
+            self.limpar_tabuleiro(peca)
+            self.pecas_pra_esquerda = 0
+            self.pecas_pra_direita = 0
+            return None
         
         if posicao == "esquerda":
-            self.lista_retangulos_tabuleiro.appendleft(posicoes_retangulo_esquerda[0])
-            posicoes_retangulo_esquerda.pop(0)
 
-            self.lista_imagens_tabuleiro.appendleft(posicoes_imagem_esquerda[0])
-            self.lista_imagens_tabuleiro.appendleft(posicoes_imagem_esquerda[1])
-            posicoes_imagem_esquerda.pop(0)
-            posicoes_imagem_esquerda.pop(0)
+            self.lista_retangulos_tabuleiro.appendleft(self.posicoes_retangulo_esquerda[0])
 
-            self.lista_bordas_tabuleiro.appendleft(posicoes_borda_esquerda[0])
-            posicoes_borda_esquerda.pop(0)
+            self.posicoes_retangulo_esquerda.pop(0)
+
+            self.lista_imagens_tabuleiro.appendleft(self.posicoes_imagem_esquerda[0])
+            self.lista_imagens_tabuleiro.appendleft(self.posicoes_imagem_esquerda[1])
+            self.posicoes_imagem_esquerda.pop(0)
+            self.posicoes_imagem_esquerda.pop(0)
+
+            self.lista_bordas_tabuleiro.appendleft(self.posicoes_borda_esquerda[0])
+            self.posicoes_borda_esquerda.pop(0)
 
         elif posicao == "direita":
-            self.lista_retangulos_tabuleiro.append(posicoes_retangulo_direita[0])
-            posicoes_retangulo_direita.pop(0)
+            self.lista_retangulos_tabuleiro.append(self.posicoes_retangulo_direita[0])
+            self.posicoes_retangulo_direita.pop(0)
 
-            self.lista_imagens_tabuleiro.append(posicoes_imagem_direita[0])
-            self.lista_imagens_tabuleiro.append(posicoes_imagem_direita[1])
-            posicoes_imagem_direita.pop(0)
-            posicoes_imagem_direita.pop(0)
+            self.lista_imagens_tabuleiro.append(self.posicoes_imagem_direita[0])
+            self.lista_imagens_tabuleiro.append(self.posicoes_imagem_direita[1])
+            self.posicoes_imagem_direita.pop(0)
+            self.posicoes_imagem_direita.pop(0)
 
-            self.lista_bordas_tabuleiro.append(posicoes_borda_direita[0])
-            posicoes_borda_direita.pop(0)
+            self.lista_bordas_tabuleiro.append(self.posicoes_borda_direita[0])
+            self.posicoes_borda_direita.pop(0)
     
     def desenhar_pecas_jogador(self, tela, pecas_jogador):
 
@@ -218,29 +262,29 @@ class TelaDomino:
         # desenhar retangulos
         for i in range(self.qtd_pecas_jogador):
             
-            rect_peca = pygame.rect.Rect(posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i])
-            pygame.draw.rect(tela, self.AZUL_CLARO, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i])
+            rect_peca = pygame.rect.Rect(posicoes_retangulos_jogador[self.qtd_pecas_jogador][i])
+            pygame.draw.rect(tela, self.AZUL_CLARO, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i])
         
         #desenhar bordas
-            pygame.draw.rect(tela, self.AMARELO, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i], 5)
-            pygame.draw.rect(tela, self.BRANCO, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0], posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][1] + 90, 90, 5), 5)
+            pygame.draw.rect(tela, self.AMARELO, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i], 5)
+            pygame.draw.rect(tela, self.BRANCO, (posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][0], posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][1] + 90, 90, 5), 5)
 
         # desenhar imagem 1 das peças
             imagem1 = pygame.image.load(pecas_jogador[i].imagem1)
-            pygame.draw.rect(tela, pecas_jogador[i].cor1, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0] + 5, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][1] + 5, 80, 85))
-            tela.blit(imagem1, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0] + 10, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][1] + 10))
+            pygame.draw.rect(tela, pecas_jogador[i].cor1, (posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][0] + 5, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][1] + 5, 80, 85))
+            tela.blit(imagem1, (posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][0] + 10, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][1] + 10))
         # desenhar imagem 2 das peças
             imagem2 = pygame.image.load(pecas_jogador[i].imagem2)
-            pygame.draw.rect(tela, pecas_jogador[i].cor2, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0] + 5, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][1] + 95, 80, 85))
-            tela.blit(imagem2, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0] + 10, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][1] + 100))
+            pygame.draw.rect(tela, pecas_jogador[i].cor2, (posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][0] + 5, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][1] + 95, 80, 85))
+            tela.blit(imagem2, (posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][0] + 10, posicoes_retangulos_jogador[self.qtd_pecas_jogador][i][1] + 100))
 
             self.lista_rect_jogador.append(rect_peca)
     
     def desenhar_pecas_robo(self, tela):
 
         for i in range(self.qtd_pecas_robo):
-            pygame.draw.rect(tela, self.AZUL_CLARO, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0], 0, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][2], 90))
-            pygame.draw.rect(tela, self.AMARELO, (posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][0], 0, posicoes_retangulos_jogador[QTD_INICIAL_PECAS][i][2], 90), 5)
+            pygame.draw.rect(tela, self.AZUL_CLARO, (posicoes_retangulos_jogador[self.qtd_pecas_robo][i][0], 0, posicoes_retangulos_jogador[self.qtd_pecas_robo][i][2], 90))
+            pygame.draw.rect(tela, self.AMARELO, (posicoes_retangulos_jogador[self.qtd_pecas_robo][i][0], 0, posicoes_retangulos_jogador[self.qtd_pecas_robo][i][2], 90), 5)
 
     def desenhar_tabuleiro(self, tela):
 
@@ -258,6 +302,44 @@ class TelaDomino:
             pygame.draw.rect(tela, self.AMARELO, rect, 5)
 
     
+    def checar_compra(self, pecas):
+
+        esquerda = sum(1 for peca in pecas if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro)
+        direita = sum(1 for peca in pecas if peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro)
+        # print("Possibilidades à esquerda: ", esquerda)
+        # print("Possibilidades à direita: ", direita)
+        if esquerda == 0 and direita == 0:
+            return True
+        else:
+            return False
+        
+    def comprar_peca(self, pecas, quem_joga):
+            
+            if self.lista_pecas == []: # se não tiver mais peças pra comprar
+                peca = random.choice(self.pecas_tabuleiro)
+                self.limpar_tabuleiro(peca)
+            
+            peca = random.choice(self.lista_pecas)
+            pecas.append(peca)
+            self.lista_pecas.remove(peca)
+            self.compras_texto = self.fonte.render(f"Pilha de compras: {len(self.lista_pecas)} ", True, self.PRETO)
+
+            if quem_joga == "jogador":
+                self.qtd_pecas_jogador += 1
+                self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
+                self.vez_jogador = False
+                self.vez_robo = True
+                self.texto_jogador = self.fonte.render("É a vez do robô jogar!", True, self.PRETO)
+
+            elif quem_joga == "robo":
+                self.qtd_pecas_robo += 1
+                self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
+                self.vez_jogador = True
+                self.vez_robo = False
+                self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)
+            
+            # print(f"{quem_joga} comprou uma peça!")
+
     def escolher_quem_joga_primeiro(self):
 
         duplas_jogador = sum(1 for peca in self.pecas_jogador if peca.tipo == "dupla")
@@ -307,6 +389,56 @@ class TelaDomino:
         
         # print(duplas_jogador, duplas_robo)
     
+    def escolher_peca_robo(self):
+        peca = ia.escolher_peca(self.pecas_robo, self.esquerda_tabuleiro, self.direita_tabuleiro)
+        # print(peca.nome1, peca.nome2)
+        if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
+                
+                if peca.nome1 == self.esquerda_tabuleiro:
+                    self.nomes_pecas_tabuleiro.appendleft(peca.nome1)
+                    self.esquerda_tabuleiro = peca.nome2
+                    self.nomes_pecas_tabuleiro.appendleft(peca.nome2)
+                elif peca.nome2 == self.esquerda_tabuleiro:
+                    self.nomes_pecas_tabuleiro.appendleft(peca.nome2)
+                    self.esquerda_tabuleiro = peca.nome1
+                    self.nomes_pecas_tabuleiro.appendleft(peca.nome1)
+                
+                self.pecas_tabuleiro.appendleft(peca)
+                self.pecas_robo.remove(peca)
+                self.qtd_pecas_robo -= 1
+                self.vez_jogador = True
+                self.vez_robo = False
+                self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)
+                self.rect_texto_jogador = self.texto_jogador.get_rect()
+                self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
+                self.qtd_jogadas_robo += 1
+                self.pecas_pra_esquerda += 1
+                self.incluir_peca_tabuleiro(peca, "esquerda")
+        
+        elif peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro:
+
+            if peca.nome1 == self.direita_tabuleiro:
+                self.nomes_pecas_tabuleiro.append(peca.nome1)
+                self.direita_tabuleiro = peca.nome2
+                self.nomes_pecas_tabuleiro.append(peca.nome2)
+            
+            elif peca.nome2 == self.direita_tabuleiro:
+                self.nomes_pecas_tabuleiro.append(peca.nome2)
+                self.direita_tabuleiro = peca.nome1
+                self.nomes_pecas_tabuleiro.append(peca.nome1)
+            
+            self.pecas_tabuleiro.append(peca)
+            self.pecas_robo.remove(peca)
+            self.qtd_pecas_robo -= 1
+            self.vez_jogador = True
+            self.vez_robo = False
+            self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)
+            self.rect_texto_jogador = self.texto_jogador.get_rect()
+            self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
+            self.qtd_jogadas_robo += 1
+            self.pecas_pra_direita += 1
+            self.incluir_peca_tabuleiro(peca, "direita")
+    
     def desenhar_tela(self):
 
         self.relogio.tick(FPS)
@@ -314,17 +446,29 @@ class TelaDomino:
         for event in pygame.event.get():
 
             if event.type == QUIT:
-                for nome in self.nomes_pecas_tabuleiro:
-                    print(nome)
                 pygame.quit()
                 sys.exit()
 
-            if event.type == MOUSEBUTTONDOWN: #and self.vez_jogador:
+            
+            if event.type == MOUSEBUTTONDOWN:
                 posicao_mouse = pygame.mouse.get_pos()
 
                 peca_clicada = self.checar_colisao(posicao_mouse)
-                if peca_clicada is not None:
+                if peca_clicada is not None and self.vez_jogador:
                     self.checar_jogada_jogador(peca_clicada)
+
+            if self.vez_jogador:
+                precisa_comprar = self.checar_compra(self.pecas_jogador)
+                if precisa_comprar:
+                    self.comprar_peca(self.pecas_jogador, "jogador")
+                    pass
+
+            if self.vez_robo:
+                precisa_comprar = self.checar_compra(self.pecas_robo)
+                if precisa_comprar:
+                    self.comprar_peca(self.pecas_robo, "robo")
+                else:
+                    self.escolher_peca_robo()
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
