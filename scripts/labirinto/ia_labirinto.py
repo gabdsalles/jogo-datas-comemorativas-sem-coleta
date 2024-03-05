@@ -1,43 +1,5 @@
 from collections import deque
 
-TABULEIRO = [
-    "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+",
-    "|  i    |       |     |   |    i  |   | |   |",
-    "+ + +-+ +-+-+-+ + + +-+ + + +-+-+ + + + + + +",
-    "| | | |   |   | | |   | | | |   |   | |   | |",
-    "+-+ + +-+ + + + + +-+ + + +-+ +-+-+-+ + +-+ +",
-    "|   | |   | | | |   |   |      i  |   | |   |",
-    "+ +-+ + +-+ + + + +-+-+-+-+-+ + + + +-+ + + +",
-    "| |   |     | |   |   |     | | | |   | | | |",
-    "+ + +-+-+-+-+ +-+-+ + + +-+ +-+ + +-+ + + + +",
-    "| |    i    |       | | | |   | |   | | | | |",
-    "+ +-+-+ +-+-+ +-+-+-+ + + +-+ + + +-+ + + + +",
-    "| |   |       |   |   | |   |  i| |   | | | |",
-    "+ + + +-+-+-+-+ + + +-+ + + +-+ +-+ +-+-+ + +",
-    "| | |   |      i| | |   | |     |   |     | |",
-    "+ + +-+ + +-+-+-+ + + +-+-+-+-+ + +-+ + +-+ +",
-    "| |   |   |   |   | |  i   i  | |   | | | | |",
-    "+ +-+ +-+-+ +-+ +-+ + +-+-+-+ + +-+ +-+ + + +",
-    "|   |   |  i|   |   |  i  |   | | |     |  i|",
-    "+-+ +-+ +-+ + +-+-+ +-+-+ + +-+ + +-+-+-+ +-+",
-    "|     |     |     | | |   | |  i| |   |   | |",
-    "+ +-+-+-+-+ +-+-+ + + + +-+ + +-+ + + + +-+ +",
-    "|      i  | |   | | |     | |     | |   |   |",
-    "+-+-+-+ +-+-+ +-+ + +-+-+-+ +-+-+ + +-+-+ +-+",
-    "|  i| |   |     | |    i    |   | | |   |   |",
-    "+ + + + + +-+-+ + +-+-+-+ +-+-+ + + + + +-+ +",
-    "| |   | |      i|  i  | | |   |   |   | |   |",
-    "+ +-+-+ +-+-+-+-+-+-+ + + + + + +-+-+-+ + + +",
-    "|     |     |   |     |   | | |       | | | |",
-    "+ +-+ +-+-+ +-+ + +-+-+-+-+ + +-+-+-+ + + +-+",
-    "| | |     | |   | |         |   |  i| | |   |",
-    "+ + +-+ +-+ + + + + +-+-+-+-+-+ + + +-+ +-+ +",
-    "|     |       | |             |   |         |",
-    "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
-]
-
-posicoes_itens_matriz = [(i, j) for i, linha in enumerate(TABULEIRO) for j, celula in enumerate(linha) if celula == 'i']
-
 def direcao_valida_robo(pos_robo, tabuleiro):
     
     possible_directions = ["left", "right", "up", "down"]
@@ -67,7 +29,7 @@ def direcao_valida_robo(pos_robo, tabuleiro):
             valid_directions.append(direction)
 
         
-    print(f"Direções válidas: {valid_directions}")
+    #print(f"Direções válidas: {valid_directions}")
     return valid_directions
 
 def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
@@ -97,6 +59,3 @@ def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
                     fila.append((nova_pos, caminho_atual + [pos_atual])) 
 
     return None  
-
-caminho = encontrar_caminho_para_item(TABULEIRO, (31, 43), posicoes_itens_matriz)
-print("Caminho encontrado:", caminho)

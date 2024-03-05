@@ -1,7 +1,8 @@
+import json
 import random
 import pygame
 from pygame.locals import *
-import sys
+import sys, os
 from carta import Tabuleiro
 import jogo_memoria.ia_jogo_memoria as ia
 
@@ -16,6 +17,26 @@ class TelaJogoMemoria:
     def __init__(self, largura, altura):
 
         pygame.init()
+
+        diretorio_atual = os.path.dirname(__file__)
+        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
+
+        with open(caminho_json, "r") as arquivo:
+            self.configuracoes = json.load(arquivo)
+
+        self.sons = self.configuracoes["sons"]
+        
+        pygame.mixer.music.set_volume(self.sons["volume_musica"])
+        self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_festa_junina.wav')
+        #pygame.mixer.music.play(-1)
+
+        self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
+        self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
+
+        self.narracao = False
+        self.jogando = True
+        self.perdeu = False
+        self.ganhou = False
 
         self.LARGURA = largura
         self.ALTURA = altura
@@ -40,10 +61,12 @@ class TelaJogoMemoria:
         self.lista_cartas_robo = []
 
         self.fonte = pygame.font.Font(None, 36)
+        self.fonte_maior = pygame.font.Font('assets/fonts/archivo_black.ttf', 48)
+        self.fonte_menor = pygame.font.Font('assets/fonts/archivo_black.ttf', 30)
         self.fundo_rect = pygame.rect.Rect(0, 0, 300, 720)
 
-        self.titulo_fase_texto = self.fonte.render("Festa Junina", True, self.PRETO)
-        self.titulo_fase_x = 75
+        self.titulo_fase_texto = self.fonte_menor.render("Festa Junina", True, self.PRETO)
+        self.titulo_fase_x = 30
         self.titulo_fase_y = 20
 
         self.itens_jogador_texto = self.fonte.render(f"Jogador: {self.pontos_jogador}/{self.pontos_totais}", True, self.PRETO)
@@ -125,6 +148,7 @@ class TelaJogoMemoria:
             carta1.dono = "jogador"
             carta2.dono = "jogador"
             self.pontos_jogador += 1
+            self.som_pontuacao_jogador.play()
             self.itens_jogador_texto = self.fonte.render(f"Jogador: {self.pontos_jogador}/{self.pontos_totais}", True, self.PRETO)
             self.tabuleiro.cartas_viradas = 0
             self.tabuleiro.lista_viradas.append(carta1)
@@ -171,6 +195,7 @@ class TelaJogoMemoria:
                 carta1.dono = "robo"
                 carta2.dono = "robo"
                 self.pontos_robo += 1
+                self.som_pontuacao_robo.play()
                 self.itens_robo_texto = self.fonte.render(f"Robô: {self.pontos_robo}/{self.pontos_totais}", True, self.PRETO)
                 self.tabuleiro.cartas_viradas = 0
                 self.tabuleiro.lista_viradas.append(carta1)
@@ -282,10 +307,115 @@ class TelaJogoMemoria:
 
         pygame.display.flip()
 
+        if self.pontos_jogador + self.pontos_robo == 1:
+            if self.pontos_jogador > self.pontos_robo:
+                self.ganhou = True
+            else:
+                self.perdeu = True
+            self.jogando = False
+
+
+    def desenhar_perdeu(self):
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MOUSEBUTTONDOWN:
+                pos_mouse = pygame.mouse.get_pos()
+                if self.botao_voltar.collidepoint(pos_mouse):
+                    #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
+                    print("Clicou no Sim!")
+                if self.botao_nao.collidepoint(pos_mouse):
+                    # voltar para a seleção de fases
+                    print("Clicou no Não!")
+        
+        self.tela.blit(self.imagem_fundo, (0, 0))
+        pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
+        self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
+        self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
+        self.tela.blit(self.tempo, (self.tempo_x, self.tempo_y))
+        self.tela.blit(self.itens_robo_texto, (self.itens_robo_x, self.itens_robo_y))
+
+        self.desenhar_cartas_jogador()
+        self.desenhar_cartas_robo()
+
+        pygame.draw.rect(self.tela, self.AMARELO2, (400, 100, 780, 520), border_radius=40)
+        self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
+        self.tela.blit(self.imagem_robo, (450, 200))
+
+        texto_perdeu = self.fonte_maior.render("Você perdeu! :(", True, self.PRETO)
+        self.tela.blit(texto_perdeu, (740, 170))
+        texto_jogar_novamente = self.fonte_menor.render("Quer jogar novamente?", True, self.PRETO)
+        self.tela.blit(texto_jogar_novamente, (760, 300))
+
+        cor_botoes = (242, 104, 104)
+        self.botao_voltar = pygame.draw.rect(self.tela, cor_botoes, (810, 400, 100, 50), border_radius=20)
+        texto_sim = self.fonte.render("Sim", True, self.PRETO)
+        self.tela.blit(texto_sim, (830, 410))
+
+        self.botao_nao = pygame.draw.rect(self.tela, cor_botoes, (1010, 400, 100, 50), border_radius=20)
+        texto_nao = self.fonte.render("Não", True, self.PRETO)
+        self.tela.blit(texto_nao, (1030, 410))
+
+        pygame.display.flip()
+    
+    def desenhar_ganhou(self):
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MOUSEBUTTONDOWN:
+                pos_mouse = pygame.mouse.get_pos()
+                if self.botao_voltar.collidepoint(pos_mouse):
+                    # voltar para a seleção de fases
+                    print("Clicou no voltar!")
+        
+        self.tela.blit(self.imagem_fundo, (0, 0))
+        pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
+        self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
+        self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
+        self.tela.blit(self.tempo, (self.tempo_x, self.tempo_y))
+        self.tela.blit(self.itens_robo_texto, (self.itens_robo_x, self.itens_robo_y))
+
+        self.desenhar_cartas_jogador()
+        self.desenhar_cartas_robo()
+
+        pygame.draw.rect(self.tela, self.AMARELO2, (400, 100, 780, 520), border_radius=40)
+        self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
+        self.tela.blit(self.imagem_robo, (450, 200))
+
+        texto_ganhou = self.fonte_maior.render("Você ganhou! :)", True, self.PRETO)
+        self.tela.blit(texto_ganhou, (740, 200))
+        texto_voltar = self.fonte_menor.render("Volte para a seleção", True, self.PRETO)
+        texto_voltar2 = self.fonte_menor.render("de fases", True, self.PRETO)
+        self.tela.blit(texto_voltar, (800, 330))
+        self.tela.blit(texto_voltar2, (900, 360))
+
+        cor_botoes = (106, 224, 97)
+        self.botao_voltar = pygame.draw.rect(self.tela, cor_botoes, (910, 430, 100, 50), border_radius=20)
+        texto_voltar = self.fonte.render("Voltar", True, self.PRETO)
+        self.tela.blit(texto_voltar, (920, 440))
+
+        pygame.display.flip()
 
     def executar(self):
         while True:
-            self.desenhar_tela()
+            if self.jogando:
+                self.desenhar_tela()
+
+            if self.ganhou:
+                self.desenhar_perdeu()
+            
+            if self.perdeu:
+                self.desenhar_perdeu()
 
 
 tela = TelaJogoMemoria(1280, 720)

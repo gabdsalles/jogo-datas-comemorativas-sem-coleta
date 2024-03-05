@@ -2,8 +2,7 @@ import random
 import pygame
 from pygame.locals import *
 from collections import deque
-import sys
-import copy
+import sys, os, json, copy
 import domino.ia_domino as ia
 
 from domino.pecas import Pecas
@@ -20,6 +19,26 @@ class TelaDomino:
     def __init__(self, largura, altura):
 
         pygame.init()
+        
+        diretorio_atual = os.path.dirname(__file__)
+        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
+
+        with open(caminho_json, "r") as arquivo:
+            self.configuracoes = json.load(arquivo)
+
+        self.sons = self.configuracoes["sons"]
+        
+        pygame.mixer.music.set_volume(self.sons["volume_musica"])
+        self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_pascoa.wav')
+        #pygame.mixer.music.play(-1)
+
+        self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
+        self.som_compras = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
+
+        self.narracao = False
+        self.jogando = True
+        self.perdeu = False
+        self.ganhou = False
 
         self.LARGURA = largura
         self.ALTURA = altura
@@ -38,6 +57,8 @@ class TelaDomino:
         self.AZUL_CLARO = (175, 217, 232)
 
         self.fonte = pygame.font.Font(None, 36)
+        self.fonte_maior = pygame.font.Font('assets/fonts/archivo_black.ttf', 48)
+        self.fonte_menor = pygame.font.Font('assets/fonts/archivo_black.ttf', 30)
         self.fundo_rect = pygame.rect.Rect(0, 0, 280, 720)
         self.tabuleiro_rect = pygame.rect.Rect(310, 100, 940, 440)
 
@@ -186,6 +207,7 @@ class TelaDomino:
             self.pecas_tabuleiro.append(peca)
             self.pecas_jogador.remove(peca)
             self.qtd_pecas_jogador -= 1
+            self.som_pontuacao_jogador.play()
             self.vez_jogador = False
             self.vez_robo = True
             self.texto_jogador = self.fonte.render("É a vez do robô jogar!", True, self.PRETO)
@@ -326,6 +348,7 @@ class TelaDomino:
 
             if quem_joga == "jogador":
                 self.qtd_pecas_jogador += 1
+                #self.som_compras.play()
                 self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
                 self.vez_jogador = False
                 self.vez_robo = True
@@ -439,6 +462,99 @@ class TelaDomino:
             self.pecas_pra_direita += 1
             self.incluir_peca_tabuleiro(peca, "direita")
     
+    def desenhar_perdeu(self):
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MOUSEBUTTONDOWN:
+                pos_mouse = pygame.mouse.get_pos()
+                if self.botao_voltar.collidepoint(pos_mouse):
+                    #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
+                    print("Clicou no Sim!")
+                if self.botao_nao.collidepoint(pos_mouse):
+                    # voltar para a seleção de fases
+                    print("Clicou no Não!")
+
+        self.tela.fill(self.PRETO)
+        self.tela.blit(self.imagem_fundo, (0, 0))
+        pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
+        self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
+        self.tela.blit(self.compras_texto, (self.compras_texto_x, self.compras_texto_y))
+        self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
+        self.tela.blit(self.tempo, (self.tempo_x, self.tempo_y))
+        self.tela.blit(self.itens_robo_texto, (self.itens_robo_x, self.itens_robo_y))
+        pygame.draw.rect(self.tela, self.AZUL_FUNDO, (40, 220, 187, 270))
+        self.tela.blit(self.fundo_carta, (50, 230), (0, 0, 200, 300))
+
+        pygame.draw.rect(self.tela, self.AMARELO2, (400, 100, 780, 520), border_radius=40)
+        self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
+        self.tela.blit(self.imagem_robo, (450, 200))
+
+        texto_perdeu = self.fonte_maior.render("Você perdeu! :(", True, self.PRETO)
+        self.tela.blit(texto_perdeu, (740, 170))
+        texto_jogar_novamente = self.fonte_menor.render("Quer jogar novamente?", True, self.PRETO)
+        self.tela.blit(texto_jogar_novamente, (760, 300))
+
+        cor_botoes = (242, 104, 104)
+        self.botao_voltar = pygame.draw.rect(self.tela, cor_botoes, (810, 400, 100, 50), border_radius=20)
+        texto_sim = self.fonte.render("Sim", True, self.PRETO)
+        self.tela.blit(texto_sim, (830, 410))
+
+        self.botao_nao = pygame.draw.rect(self.tela, cor_botoes, (1010, 400, 100, 50), border_radius=20)
+        texto_nao = self.fonte.render("Não", True, self.PRETO)
+        self.tela.blit(texto_nao, (1030, 410))
+
+        pygame.display.flip()
+    
+    def desenhar_ganhou(self):
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MOUSEBUTTONDOWN:
+                pos_mouse = pygame.mouse.get_pos()
+                if self.botao_voltar.collidepoint(pos_mouse):
+                    # voltar para a seleção de fases
+                    print("Clicou no voltar!")
+
+        self.tela.fill(self.PRETO)
+        self.tela.blit(self.imagem_fundo, (0, 0))
+        pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
+        self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
+        self.tela.blit(self.compras_texto, (self.compras_texto_x, self.compras_texto_y))
+        self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
+        self.tela.blit(self.tempo, (self.tempo_x, self.tempo_y))
+        self.tela.blit(self.itens_robo_texto, (self.itens_robo_x, self.itens_robo_y))
+        pygame.draw.rect(self.tela, self.AZUL_FUNDO, (40, 220, 187, 270))
+        self.tela.blit(self.fundo_carta, (50, 230), (0, 0, 200, 300))
+
+        pygame.draw.rect(self.tela, self.AMARELO2, (400, 100, 780, 520), border_radius=40)
+        self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
+        self.tela.blit(self.imagem_robo, (450, 200))
+
+        texto_ganhou = self.fonte_maior.render("Você ganhou! :)", True, self.PRETO)
+        self.tela.blit(texto_ganhou, (740, 200))
+        texto_voltar = self.fonte_menor.render("Volte para a seleção", True, self.PRETO)
+        texto_voltar2 = self.fonte_menor.render("de fases", True, self.PRETO)
+        self.tela.blit(texto_voltar, (800, 330))
+        self.tela.blit(texto_voltar2, (900, 360))
+
+        cor_botoes = (106, 224, 97)
+        self.botao_voltar = pygame.draw.rect(self.tela, cor_botoes, (910, 430, 100, 50), border_radius=20)
+        texto_voltar = self.fonte.render("Voltar", True, self.PRETO)
+        self.tela.blit(texto_voltar, (920, 440))
+
+        pygame.display.flip()
+    
     def desenhar_tela(self):
 
         self.relogio.tick(FPS)
@@ -449,7 +565,6 @@ class TelaDomino:
                 pygame.quit()
                 sys.exit()
 
-            
             if event.type == MOUSEBUTTONDOWN:
                 posicao_mouse = pygame.mouse.get_pos()
 
@@ -457,13 +572,13 @@ class TelaDomino:
                 if peca_clicada is not None and self.vez_jogador:
                     self.checar_jogada_jogador(peca_clicada)
 
-            if self.vez_jogador:
+            if self.vez_jogador and self.qtd_pecas_jogador > 0:
                 precisa_comprar = self.checar_compra(self.pecas_jogador)
                 if precisa_comprar:
                     self.comprar_peca(self.pecas_jogador, "jogador")
                     pass
 
-            if self.vez_robo:
+            if self.vez_robo and self.qtd_pecas_robo > 0:
                 precisa_comprar = self.checar_compra(self.pecas_robo)
                 if precisa_comprar:
                     self.comprar_peca(self.pecas_robo, "robo")
@@ -506,10 +621,26 @@ class TelaDomino:
 
         pygame.display.flip()
 
+        if self.qtd_pecas_jogador == 0:
+            self.ganhou = True
+            self.jogando = False
+        
+        if self.qtd_pecas_robo == 0:
+            self.perdeu = True
+            self.jogando = False
+
 
     def executar(self):
         while True:
-            self.desenhar_tela()
+            
+            if self.jogando:
+                self.desenhar_tela()
+
+            if self.ganhou:
+                self.desenhar_ganhou()
+
+            if self.perdeu:
+                self.desenhar_perdeu()
 
 
 tela = TelaDomino(1280, 720)
