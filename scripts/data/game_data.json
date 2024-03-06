@@ -1,8 +1,15 @@
 {
     "sons": {
-      "volume_jogador": 1.0,
-      "volume_robo": 0.3,
-      "volume_musica": 0.5
-      }
+        "volume_jogador": 1.0,
+        "volume_robo": 0.3,
+        "volume_musica": 0.5
+    },
+    "locked": {
+        "pascoa": false,
+        "festa_junina": false,
+        "natal": false,
+        "fase4": true,
+        "fase5": true,
+        "fase6": true
+    }
 }
-  

@@ -85,8 +85,8 @@ class TelaDomino:
         self.posicoes_retangulo_esquerda = copy.deepcopy(posicoes_retangulo_esquerda)
         self.posicoes_retangulo_direita = copy.deepcopy(posicoes_retangulo_direita)
 
-        self.titulo_fase_texto = self.fonte.render("Páscoa", True, self.PRETO)
-        self.titulo_fase_x = 100
+        self.titulo_fase_texto = self.fonte_maior.render("Páscoa", True, self.PRETO)
+        self.titulo_fase_x = 70
         self.titulo_fase_y = 20
 
         self.tempo_texto = self.fonte.render("Tempo: ", True, self.PRETO)
@@ -98,6 +98,9 @@ class TelaDomino:
         self.tempo_y = 675
 
         self.tempo_decorrido = 0
+
+        self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
+        self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
 
         self.texto_jogador = self.fonte.render("É sua vez de jogar!", True, self.PRETO)
         self.texto_jogador_x = 15
@@ -242,7 +245,6 @@ class TelaDomino:
         self.pecas_tabuleiro = deque()
         self.compras_texto = self.fonte.render(f"Pilha de compras: {len(self.lista_pecas)} ", True, self.PRETO)
 
-
     def incluir_peca_tabuleiro(self, peca, posicao):
 
         if self.pecas_pra_esquerda == 9 or self.pecas_pra_direita == 9: #acabou as posições
@@ -323,7 +325,6 @@ class TelaDomino:
         for rect in self.lista_retangulos_tabuleiro:
             pygame.draw.rect(tela, self.AMARELO, rect, 5)
 
-    
     def checar_compra(self, pecas):
 
         esquerda = sum(1 for peca in pecas if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro)
@@ -473,10 +474,12 @@ class TelaDomino:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
-                    print("Clicou no Sim!")
+                    # print("Clicou no Sim!")
+                    return "pascoa"
                 if self.botao_nao.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
-                    print("Clicou no Não!")
+                    # print("Clicou no Não!")
+                    return "selecao_fases"
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
@@ -521,8 +524,19 @@ class TelaDomino:
             if event.type == MOUSEBUTTONDOWN:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
+                    # print("Clicou no voltar!")
+                    # alterar o locked do json pra segunda fase == False
+                    diretorio_atual = os.path.dirname(__file__)
+                    caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
+
+                    with open(caminho_json, "r") as arquivo:
+                        dados = json.load(arquivo)
+                        dados["locked"]["festa_junina"] = False
+
+                    with open(caminho_json, "w") as arquivo:
+                        json.dump(dados, arquivo, indent=4)
                     # voltar para a seleção de fases
-                    print("Clicou no voltar!")
+                    return "selecao_fases"
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
@@ -568,6 +582,9 @@ class TelaDomino:
             if event.type == MOUSEBUTTONDOWN:
                 posicao_mouse = pygame.mouse.get_pos()
 
+                if self.botao_voltar.collidepoint(posicao_mouse):
+                    return "selecao_fases"
+
                 peca_clicada = self.checar_colisao(posicao_mouse)
                 if peca_clicada is not None and self.vez_jogador:
                     self.checar_jogada_jogador(peca_clicada)
@@ -576,7 +593,6 @@ class TelaDomino:
                 precisa_comprar = self.checar_compra(self.pecas_jogador)
                 if precisa_comprar:
                     self.comprar_peca(self.pecas_jogador, "jogador")
-                    pass
 
             if self.vez_robo and self.qtd_pecas_robo > 0:
                 precisa_comprar = self.checar_compra(self.pecas_robo)
@@ -597,6 +613,8 @@ class TelaDomino:
 
         self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
 
+        pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
+        self.tela.blit(self.imagem_voltar, (10, 10))
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
         self.tela.blit(self.compras_texto, (self.compras_texto_x, self.compras_texto_y))
@@ -621,28 +639,28 @@ class TelaDomino:
 
         pygame.display.flip()
 
-        if self.qtd_pecas_jogador == 0:
+        if self.qtd_pecas_jogador == 0 and self.jogando == True:
             self.ganhou = True
             self.jogando = False
         
-        if self.qtd_pecas_robo == 0:
+        if self.qtd_pecas_robo == 0 and self.jogando == True:
             self.perdeu = True
             self.jogando = False
-
 
     def executar(self):
         while True:
             
             if self.jogando:
-                self.desenhar_tela()
+                retorno = self.desenhar_tela()
 
             if self.ganhou:
-                self.desenhar_ganhou()
+                retorno = self.desenhar_ganhou()
 
             if self.perdeu:
-                self.desenhar_perdeu()
+                retorno = self.desenhar_perdeu()
+                
+            if retorno != None:
+                    return retorno
 
-
-tela = TelaDomino(1280, 720)
-
-tela.executar()
+# tela = TelaDomino(1280, 720)
+# tela.executar()

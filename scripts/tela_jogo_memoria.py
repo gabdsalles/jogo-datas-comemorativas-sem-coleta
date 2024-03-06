@@ -66,7 +66,7 @@ class TelaJogoMemoria:
         self.fundo_rect = pygame.rect.Rect(0, 0, 300, 720)
 
         self.titulo_fase_texto = self.fonte_menor.render("Festa Junina", True, self.PRETO)
-        self.titulo_fase_x = 30
+        self.titulo_fase_x = 60
         self.titulo_fase_y = 20
 
         self.itens_jogador_texto = self.fonte.render(f"Jogador: {self.pontos_jogador}/{self.pontos_totais}", True, self.PRETO)
@@ -82,6 +82,9 @@ class TelaJogoMemoria:
         self.tempo_y = 675
 
         self.tempo_decorrido = 0
+
+        self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
+        self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
 
         self.itens_robo_texto = self.fonte.render(f"Robô: {self.pontos_robo}/{self.pontos_totais}", True, self.PRETO)
         self.itens_robo_x = 90
@@ -262,6 +265,9 @@ class TelaJogoMemoria:
 
             if event.type == MOUSEBUTTONDOWN and self.vez_jogador:
                 posicao_mouse = pygame.mouse.get_pos()
+                
+                if self.botao_voltar.collidepoint(posicao_mouse):
+                    return "selecao_fases"
 
                 self.checar_colisao(posicao_mouse)        
 
@@ -293,6 +299,8 @@ class TelaJogoMemoria:
 
         self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
 
+        pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
+        self.tela.blit(self.imagem_voltar, (10, 10))
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
         self.tela.blit(self.tempo_texto, (self.tempo_texto_x, self.tempo_texto_y))
@@ -307,7 +315,7 @@ class TelaJogoMemoria:
 
         pygame.display.flip()
 
-        if self.pontos_jogador + self.pontos_robo == 1:
+        if self.pontos_jogador + self.pontos_robo == 5:
             if self.pontos_jogador > self.pontos_robo:
                 self.ganhou = True
             else:
@@ -325,11 +333,12 @@ class TelaJogoMemoria:
             if event.type == MOUSEBUTTONDOWN:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
-                    #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
-                    print("Clicou no Sim!")
+                    #print("Clicou no Sim!")
+                    return "festa junina"
                 if self.botao_nao.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
-                    print("Clicou no Não!")
+                    #print("Clicou no Não!")
+                    return "selecao_fases"
         
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
@@ -374,7 +383,18 @@ class TelaJogoMemoria:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
-                    print("Clicou no voltar!")
+                    #print("Clicou no voltar!")
+                    diretorio_atual = os.path.dirname(__file__)
+                    caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
+
+                    with open(caminho_json, "r") as arquivo:
+                        dados = json.load(arquivo)
+                        dados["locked"]["natal"] = False
+
+                    with open(caminho_json, "w") as arquivo:
+                        json.dump(dados, arquivo, indent=4)
+                    # voltar para a seleção de fases
+                    return "selecao_fases"
         
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
@@ -409,15 +429,13 @@ class TelaJogoMemoria:
     def executar(self):
         while True:
             if self.jogando:
-                self.desenhar_tela()
+                retorno = self.desenhar_tela()
 
             if self.ganhou:
-                self.desenhar_perdeu()
+                retorno = self.desenhar_ganhou()
             
             if self.perdeu:
-                self.desenhar_perdeu()
-
-
-tela = TelaJogoMemoria(1280, 720)
-
-tela.executar()
+                retorno = self.desenhar_perdeu()
+            
+            if retorno != None:
+                return retorno

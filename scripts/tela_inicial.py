@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 import sys
-from tela_selecao_fases import TelaFases
 
 class TelaInicial:
     def __init__(self, largura, altura):
@@ -10,7 +9,6 @@ class TelaInicial:
         self.LARGURA = largura
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
-        self.tela_fases = TelaFases(1280, 720)
         pygame.display.set_caption('Tela Inicial')
 
         self.BRANCO = (255, 255, 255)
@@ -42,11 +40,12 @@ class TelaInicial:
             if event.type == MOUSEBUTTONDOWN:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.ret_jogar.collidepoint(pos_mouse):
-                    print("Clicou em Jogar")
-                    self.tela_fases.executar()
+                    #print("Clicou em Jogar")
+                    return "selecao_fases"
                     
                 elif self.ret_config.collidepoint(pos_mouse):
-                    print("Clicou em Configurações")
+                    #print("Clicou em Configurações")
+                    return "configuracoes"
                 elif self.ret_sair.collidepoint(pos_mouse):
                     pygame.quit()
                     sys.exit()
@@ -70,7 +69,6 @@ class TelaInicial:
 
     def executar(self):
         while True:
-            self.desenhar_tela()
-
-tela_inicial = TelaInicial(1280, 720)
-tela_inicial.executar()
+            retorno = self.desenhar_tela()
+            if retorno != None:
+                return retorno

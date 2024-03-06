@@ -6,7 +6,6 @@ from sprites.crianca import Crianca
 import maze_maker
 from sprites.robo import Robo
 from labirinto.itens import ListaItens
-import random
 import labirinto.ia_labirinto as ia
 import labirinto.logica_labirinto as logica
 
@@ -31,7 +30,7 @@ class TelaLabirinto:
         
         pygame.mixer.music.set_volume(self.sons["volume_musica"])
         self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_natal.wav')
-        pygame.mixer.music.play(-1)
+       # pygame.mixer.music.play(-1)
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
         self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
@@ -95,7 +94,7 @@ class TelaLabirinto:
 
         self.tempo_texto = self.fonte.render("Tempo: ", True, self.PRETO)
         self.tempo_texto_x = 10
-        self.tempo_texto_y = 675
+        self.tempo_texto_y = 675 
 
         self.itens_robo_texto = self.fonte.render(f"Robô: {self.pontos_robo}/{self.pontos_totais}", True, self.PRETO)
         self.itens_robo_x = 90
@@ -106,6 +105,9 @@ class TelaLabirinto:
         self.tempo_y = 675
 
         self.tempo_decorrido = 0
+
+        self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
+        self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
 
         # Labirinto
         self.tabuleiro = maze_maker.make_maze()
@@ -191,7 +193,7 @@ class TelaLabirinto:
                             imagem_rect = self.lista_imagens[cont_itens].get_rect()
 
                             pygame.draw.rect(self.tela, self.BRANCO, retangulo[0])
-                            if self.lista_itens[cont_itens].passou == False:
+                            if self.lista_itens[cont_itens].passou == False and self.lista_itens[cont_itens].dono == None:
                                 self.tela.blit(self.lista_imagens[cont_itens], (x, y))
                             self.lista_itens[cont_itens].posicao = (x, y)
                             self.lista_itens[cont_itens].posicao_matriz = (i, j)
@@ -206,12 +208,7 @@ class TelaLabirinto:
                 y += ESPESSURA_BORDA
             else:
                 y += DISTANCIA_Y
-
-    def gerar_item_aleatorio(self, segundos):
-        if segundos % 10 == 0: #and segundos != 0
-            item_novo = random.choice(ListaItens().lista_possibilidades_itens)
-            # self.atualizar_labirinto()
-
+    
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
 
         # Desenhe as linhas horizontais do grid
@@ -318,13 +315,14 @@ class TelaLabirinto:
                         self.crianca.atualizar(nova_posicao)
 
             if event.type == MOUSEBUTTONDOWN:
-                pass          
+                if self.botao_voltar.collidepoint(pygame.mouse.get_pos()):
+                    return "selecao_fases"          
 
         posicao_jogador = self.crianca.rect.topleft
         posicao_robo = self.robo.rect.topleft
 
         for item in self.lista_itens:
-            if posicao_jogador == item.posicao and item.passou == False:
+            if posicao_jogador == item.posicao and item.passou == False and item.dono == None:
                 item.passou = True
                 pygame.mixer.music.set_volume(self.sons["volume_jogador"])
                 self.som_pontuacao_jogador.play()
@@ -335,10 +333,11 @@ class TelaLabirinto:
                 #print(item.nome, item.dono, item.passou, item.posicao)
                 self.novos_itens_jogador.append(item)
                 posicao_matriz = item.posicao_matriz
-                self.posicoes_itens_matriz.remove(posicao_matriz)
+                if posicao_matriz in self.posicoes_itens_matriz:
+                    self.posicoes_itens_matriz.remove(posicao_matriz)
                 self.novas_imagens_jogador.append(pygame.image.load(item.imagem))
             
-            if posicao_robo == item.posicao and item.passou == False:
+            if posicao_robo == item.posicao and item.passou == False and item.dono == None:
                 item.passou = True
                 pygame.mixer.music.set_volume(self.sons["volume_robo"])
                 self.som_pontuacao_robo.play()
@@ -350,10 +349,10 @@ class TelaLabirinto:
                 self.novos_itens_robo.append(item)
                 self.novas_imagens_robo.append(pygame.image.load(item.imagem))
                 posicao_matriz = item.posicao_matriz
-                self.posicoes_itens_matriz.remove(posicao_matriz)
+                if posicao_matriz in self.posicoes_itens_matriz:
+                    self.posicoes_itens_matriz.remove(posicao_matriz)
                 self.caminho = ia.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
                 
- 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
@@ -416,6 +415,8 @@ class TelaLabirinto:
 
         self.todas_sprites.draw(self.tela)
         
+        pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
+        self.tela.blit(self.imagem_voltar, (10, 10))
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
         self.tela.blit(self.itens_robo_texto, (self.itens_robo_x, self.itens_robo_y))
@@ -444,10 +445,12 @@ class TelaLabirinto:
         if self.pontos_jogador == 10:
             self.jogando = False
             self.ganhou = True
+            return None
         
         if self.pontos_robo == 10:
             self.jogando = False
             self.perdeu = True
+            return None
 
     def desenhar_perdeu(self):
         
@@ -460,10 +463,12 @@ class TelaLabirinto:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
-                    print("Clicou no Sim!")
+                    #print("Clicou no Sim!")
+                    return "natal"
                 if self.botao_nao.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
-                    print("Clicou no Não!")
+                    #print("Clicou no Não!")
+                    return "selecao_fases"
 
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
@@ -521,8 +526,9 @@ class TelaLabirinto:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
-                    print("Clicou no voltar!")
-
+                    #print("Clicou no voltar!")
+                    return "selecao_fases"
+        
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
 
@@ -570,19 +576,14 @@ class TelaLabirinto:
         while True:
             
             if self.jogando:
-                self.desenhar_tela()
-                segundos_atual = self.tempo_decorrido // 60
-
-                if segundos_atual - self.ultima_geracao >= 10:
-                    self.gerar_item_aleatorio(segundos_atual)
-                    self.ultima_geracao = segundos_atual
+                retorno = self.desenhar_tela()
 
             if self.perdeu:
-                self.desenhar_perdeu()
+                retorno = self.desenhar_perdeu()
 
             if self.ganhou:
-                self.desenhar_ganhou()
+                retorno = self.desenhar_ganhou()
 
-tela = TelaLabirinto(1280, 720)
-tela.executar()
+            if retorno != None:
+                return retorno
 

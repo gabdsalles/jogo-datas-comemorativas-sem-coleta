@@ -47,7 +47,7 @@ def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
                 if x % 2 == 0 or y % 2 == 0:
                     caminho.remove(ponto)
             
-            # print(caminho)
+            #print(caminho)
             return caminho
 
         direcoes = [(0, 1), (1, 0), (0, -1), (-1, 0)]  

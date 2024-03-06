@@ -1,8 +1,8 @@
+import json
 import pygame
 from pygame.locals import *
 from fases import ListaFases
-import sys
-from tela_labirinto import TelaLabirinto
+import sys, os
 
 class TelaFases:
     def __init__(self, largura, altura):
@@ -27,7 +27,14 @@ class TelaFases:
 
         self.lista_fases = ListaFases().lista_fases
 
-        self.locked = [False, True, True, True, True, True]
+        diretorio_atual = os.path.dirname(__file__)
+        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
+
+        with open(caminho_json, "r") as arquivo:
+            self.configuracoes = json.load(arquivo)
+
+        locked = self.configuracoes["locked"]
+        self.locked = [locked[fase] for fase in locked]
 
     def desenhar_grid(self):
         for x in range(0, self.LARGURA, 50):
@@ -44,14 +51,17 @@ class TelaFases:
 
             if event.type == MOUSEBUTTONDOWN:
                 if self.ret_voltar.collidepoint(pygame.mouse.get_pos()):
-                    print("Clicou em Voltar")
+                    return "tela_inicial"
 
                 for fase in self.lista_fases:
                     if not self.locked[self.lista_fases.index(fase)] and fase.retangulo.collidepoint(pygame.mouse.get_pos()):
                         print(f"Clicou na fase {fase.nome}")
                         if (fase.nome == "Páscoa"):
-                            tela = TelaLabirinto(1280, 720)
-                            tela.executar()
+                            return "pascoa"
+                        elif (fase.nome == "Festa Junina"):
+                            return "festa junina"
+                        elif (fase.nome == "Natal"):
+                            return "natal"
 
         self.tela.fill(self.AMARELO)
 
@@ -81,7 +91,6 @@ class TelaFases:
 
     def executar(self):
         while True:
-            self.desenhar_tela()
-
-# telaFases = TelaFases(1280, 720)
-# telaFases.executar()
+            retorno = self.desenhar_tela()
+            if retorno != None:
+                return retorno
