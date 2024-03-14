@@ -1,15 +1,20 @@
 {
-    "sons": {
-        "volume_jogador": 1.0,
-        "volume_robo": 0.3,
-        "volume_musica": 0.5
-    },
-    "locked": {
-        "pascoa": false,
-        "festa_junina": false,
-        "natal": false,
-        "fase4": true,
-        "fase5": true,
-        "fase6": true
-    }
+  "sons": {
+    "volume_jogador": 1.0,
+    "volume_robo": 0.3,
+    "volume_musica": 0.5
+  },
+  "locked": {
+    "pascoa": false,
+    "festa_junina": false,
+    "natal": false,
+    "fase4": true,
+    "fase5": true,
+    "fase6": true
+  },
+  "textos_fases": {
+    "natal": "Na tradição cristã, o Natal celebra o nascimento de Jesus Cristo, no dia 25 de dezembro. Em outras culturas, como a romana, essa data celebrava a chegada do inverno no Hemisfério Norte. Uma das figuras mais populares do Natal é o Papai Noel, que traz presentes para as crianças que se comportaram no ano que passou. Outros símbolos incluem a árvore de Natal, os presentes, o sino e o presépio.",
+    "pascoa": "A Páscoa é uma celebração do calendário religioso cristão, que lembra a crucificação de Jesus Cristo, na Sexta-Feira Santa, e comemora a sua ressurreição, no Domingo de Páscoa. A Páscoa não possui uma data fixa, ou seja, é um feriado móvel: a cada ano, a data da Páscoa é diferente, assim como o Carnaval. Hoje em dia, a Páscoa também é celebrada pela troca de ovos de chocolate. Outros símbolos incluem o coelho, os ramos e a cruz.",
+    "festa_junina": "A Festa Junina é uma festa popular tradicional brasileira, que acontece no mês de junho. É comemorada a partir do século 16, trazida pelos portugueses, inicialmente como uma festa apenas religiosa. Com o passar dos anos, uma grande mistura cultural começa a marcar as comemorações da Festa Junina, como a dança tradicional, a quadrilha, e comidas típicas, como paçoca, pé de moleque e canjica."
+  }
 }

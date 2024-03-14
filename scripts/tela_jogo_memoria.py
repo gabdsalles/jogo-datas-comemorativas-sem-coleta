@@ -21,20 +21,21 @@ class TelaJogoMemoria:
         diretorio_atual = os.path.dirname(__file__)
         caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
 
-        with open(caminho_json, "r") as arquivo:
+        with open(caminho_json, "r", encoding='utf-8') as arquivo:
             self.configuracoes = json.load(arquivo)
 
         self.sons = self.configuracoes["sons"]
+        self.texto_narracao = self.configuracoes["textos_fases"]["festa_junina"]
         
         pygame.mixer.music.set_volume(self.sons["volume_musica"])
         self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_festa_junina.wav')
-        #pygame.mixer.music.play(-1)
+        pygame.mixer.music.play(-1)
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
         self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
 
-        self.narracao = False
-        self.jogando = True
+        self.narracao = True
+        self.jogando = False
         self.perdeu = False
         self.ganhou = False
 
@@ -45,6 +46,8 @@ class TelaJogoMemoria:
         self.relogio = pygame.time.Clock()
 
         self.imagem_fundo = pygame.image.load("assets/imagens/festa_junina/festajunina_fundo.jpg").convert()
+        self.lista_imagens_narracao = [pygame.image.load("assets/imagens/festa_junina_narracao/festajunina1.png"), pygame.image.load("assets/imagens/festa_junina_narracao/festajunina2.png"), 
+                                       pygame.image.load("assets/imagens/festa_junina_narracao/festajunina3.png")]
 
         self.BRANCO = (255, 255, 255)
         self.PRETO = (0, 0, 0)
@@ -52,6 +55,7 @@ class TelaJogoMemoria:
         self.VERMELHO = (255, 0, 0)
         self.AZUL_FUNDO = (0, 61, 80)
         self.AMARELO2 = (233, 255, 101)
+        self.cor_botoes = (106, 224, 97)
 
         self.pontos_jogador = 0
         self.pontos_robo = 0
@@ -63,6 +67,7 @@ class TelaJogoMemoria:
         self.fonte = pygame.font.Font(None, 36)
         self.fonte_maior = pygame.font.Font('assets/fonts/archivo_black.ttf', 48)
         self.fonte_menor = pygame.font.Font('assets/fonts/archivo_black.ttf', 30)
+        self.fonte_narracao = pygame.font.SysFont("calibri", 30, bold=True, italic=True)
         self.fundo_rect = pygame.rect.Rect(0, 0, 300, 720)
 
         self.titulo_fase_texto = self.fonte_menor.render("Festa Junina", True, self.PRETO)
@@ -426,8 +431,79 @@ class TelaJogoMemoria:
 
         pygame.display.flip()
 
+    def box_text(self, surface, font, x_start, x_end, y_start, text):
+        x = x_start
+        y = y_start
+        words = text.split(' ')
+        
+        line_width = 0
+        space_width = font.render(' ', True, self.PRETO).get_width() * 1.1
+
+        for word in words:
+            word_t = font.render(word, True, self.PRETO)
+            word_width = word_t.get_width()
+            
+            if line_width + word_width <= x_end - x_start:
+                surface.blit(word_t, (x, y))
+                x += word_width + space_width
+                line_width += word_width + space_width
+            else:
+                y += word_t.get_height() * 1.25
+                x = x_start
+                line_width = 0
+                surface.blit(word_t, (x, y))
+                x += word_width + space_width
+                line_width += word_width + space_width
+    
+    def desenhar_narracao(self):
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MOUSEBUTTONDOWN:
+                pos_mouse = pygame.mouse.get_pos()
+                if self.botao_pular.collidepoint(pos_mouse):
+                    self.narracao = False
+                    self.jogando = True
+                    return None
+                elif self.botao_voltar.collidepoint(pos_mouse):
+                    return "selecao_fases"
+
+        self.tela.fill(self.PRETO)
+        self.tela.blit(self.imagem_fundo, (0, 0))
+        pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
+        self.tela.blit(self.imagem_voltar, (10, 10))
+        
+        self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
+
+        y_imagem = 100
+        for imagem in self.lista_imagens_narracao:
+            self.tela.blit(imagem, (25, y_imagem))
+            y_imagem += 200
+        
+        pygame.draw.rect(self.tela, self.AMARELO2, (350, 50, 880, 620), border_radius=40)
+        self.box_text(self.tela, self.fonte_narracao, 700, 1200, 130, self.texto_narracao)
+
+        self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
+        self.tela.blit(self.imagem_robo, (350, 200))
+
+        self.botao_pular = pygame.rect.Rect(1100, 600, 100, 50)
+        pygame.draw.rect(self.tela, self.cor_botoes, self.botao_pular, border_radius=20)
+        texto_pular = self.fonte.render("Pular", True, self.PRETO)
+        self.tela.blit(texto_pular, (1120, 615))
+        
+        pygame.display.flip()
+
     def executar(self):
         while True:
+            
+            if self.narracao:
+                retorno = self.desenhar_narracao()
+            
             if self.jogando:
                 retorno = self.desenhar_tela()
 
@@ -438,4 +514,5 @@ class TelaJogoMemoria:
                 retorno = self.desenhar_perdeu()
             
             if retorno != None:
+                pygame.mixer.music.stop()
                 return retorno

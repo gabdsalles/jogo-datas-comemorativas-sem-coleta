@@ -55,7 +55,7 @@ class TelaFases:
 
                 for fase in self.lista_fases:
                     if not self.locked[self.lista_fases.index(fase)] and fase.retangulo.collidepoint(pygame.mouse.get_pos()):
-                        print(f"Clicou na fase {fase.nome}")
+                        #print(f"Clicou na fase {fase.nome}")
                         if (fase.nome == "Páscoa"):
                             return "pascoa"
                         elif (fase.nome == "Festa Junina"):
