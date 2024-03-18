@@ -3,8 +3,8 @@ import random
 import pygame
 from pygame.locals import *
 import sys, os
-from carta import Tabuleiro
-import jogo_memoria.ia_jogo_memoria as ia
+from scripts.carta import Tabuleiro
+import scripts.jogo_memoria.ia_jogo_memoria as ia
 
 LARGURA = 1280
 ALTURA = 720
@@ -18,10 +18,7 @@ class TelaJogoMemoria:
 
         pygame.init()
 
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
-
-        with open(caminho_json, "r", encoding='utf-8') as arquivo:
+        with open("./data/game_data.json", "r", encoding='utf-8') as arquivo:
             self.configuracoes = json.load(arquivo)
 
         self.sons = self.configuracoes["sons"]
@@ -64,7 +61,7 @@ class TelaJogoMemoria:
         self.lista_cartas_jogador = []
         self.lista_cartas_robo = []
 
-        self.fonte = pygame.font.Font(None, 36)
+        self.fonte = pygame.font.SysFont("calibri", 36)
         self.fonte_maior = pygame.font.Font('assets/fonts/archivo_black.ttf', 48)
         self.fonte_menor = pygame.font.Font('assets/fonts/archivo_black.ttf', 30)
         self.fonte_narracao = pygame.font.SysFont("calibri", 30, bold=True, italic=True)
@@ -389,14 +386,12 @@ class TelaJogoMemoria:
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
                     #print("Clicou no voltar!")
-                    diretorio_atual = os.path.dirname(__file__)
-                    caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
 
-                    with open(caminho_json, "r") as arquivo:
+                    with open("./data/game_data.json", "r") as arquivo:
                         dados = json.load(arquivo)
                         dados["locked"]["natal"] = False
 
-                    with open(caminho_json, "w") as arquivo:
+                    with open("./data/game_data.json", "w") as arquivo:
                         json.dump(dados, arquivo, indent=4)
                     # voltar para a seleção de fases
                     return "selecao_fases"

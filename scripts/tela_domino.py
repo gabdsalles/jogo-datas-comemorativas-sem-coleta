@@ -3,10 +3,10 @@ import pygame
 from pygame.locals import *
 from collections import deque
 import sys, os, json, copy
-import domino.ia_domino as ia
+import scripts.domino.ia_domino as ia
 
-from domino.pecas import Pecas
-from domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
+from scripts.domino.pecas import Pecas
+from scripts.domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
 
 LARGURA = 1280
 ALTURA = 720
@@ -20,11 +20,8 @@ class TelaDomino:
 
         pygame.init()
         pygame.mixer.init()
-        
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
 
-        with open(caminho_json, "r", encoding="utf-8") as arquivo:
+        with open("./data/game_data.json", "r", encoding="utf-8") as arquivo:
             self.configuracoes = json.load(arquivo)
 
         self.sons = self.configuracoes["sons"]
@@ -534,14 +531,12 @@ class TelaDomino:
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # print("Clicou no voltar!")
                     # alterar o locked do json pra segunda fase == False
-                    diretorio_atual = os.path.dirname(__file__)
-                    caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
 
-                    with open(caminho_json, "r") as arquivo:
+                    with open("./data/game_data.json", "r") as arquivo:
                         dados = json.load(arquivo)
                         dados["locked"]["festa_junina"] = False
 
-                    with open(caminho_json, "w") as arquivo:
+                    with open("./data/game_data.json", "w") as arquivo:
                         json.dump(dados, arquivo, indent=4)
                     # voltar para a seleção de fases
                     return "selecao_fases"

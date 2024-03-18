@@ -1,6 +1,6 @@
 import random
 
-from carta import Carta
+from scripts.carta import Carta
 
 cartas_lembradas = []
 

@@ -1,15 +1,12 @@
 import pygame
 from pygame.locals import *
-import sys, os, json
+import sys, json
 
 class TelaConfiguracoes:
     def __init__(self, largura, altura):
         pygame.init()
 
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
-
-        with open(caminho_json, "r") as arquivo:
+        with open("./data/game_data.json", "r") as arquivo:
             self.configuracoes = json.load(arquivo)
         
         self.LARGURA = largura
@@ -105,9 +102,7 @@ class TelaConfiguracoes:
     def alterar_volume_json(self):
 
         self.configuracoes["sons"]["volume_musica"] = self.volume / 100
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
-        with open(caminho_json, "w") as arquivo:
+        with open("./data/game_data.json", "w") as arquivo:
             json.dump(self.configuracoes, arquivo)
 
     def executar(self):

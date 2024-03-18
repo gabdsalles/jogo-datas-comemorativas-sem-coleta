@@ -1,7 +1,7 @@
 import json
 import pygame
 from pygame.locals import *
-from fases import ListaFases
+from scripts.fases import ListaFases
 import sys, os
 
 class TelaFases:
@@ -27,10 +27,7 @@ class TelaFases:
 
         self.lista_fases = ListaFases().lista_fases
 
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
-
-        with open(caminho_json, "r") as arquivo:
+        with open("./data/game_data.json", "r") as arquivo:
             self.configuracoes = json.load(arquivo)
 
         locked = self.configuracoes["locked"]

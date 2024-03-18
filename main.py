@@ -1,11 +1,11 @@
 import pygame
 from pygame.locals import *
-from tela_domino import TelaDomino
-from tela_selecao_fases import TelaFases
-from tela_inicial import TelaInicial
-from tela_jogo_memoria import TelaJogoMemoria
-from tela_labirinto import TelaLabirinto
-from tela_configuracoes import TelaConfiguracoes
+from scripts.tela_domino import TelaDomino
+from scripts.tela_selecao_fases import TelaFases
+from scripts.tela_inicial import TelaInicial
+from scripts.tela_jogo_memoria import TelaJogoMemoria
+from scripts.tela_labirinto import TelaLabirinto
+from scripts.tela_configuracoes import TelaConfiguracoes
 
 LARGURA = 1280
 ALTURA = 720

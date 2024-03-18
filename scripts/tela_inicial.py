@@ -15,7 +15,7 @@ class TelaInicial:
         self.PRETO = (0, 0, 0)
         self.AMARELO = (255, 255, 0)
 
-        self.fonte = pygame.font.Font(None, 36)
+        self.fonte = pygame.font.SysFont(None, 36)
 
         self.imagem_fundo = pygame.image.load("assets/imagens/tela_inicial_fundo.png").convert()
 

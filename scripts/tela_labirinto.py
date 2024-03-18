@@ -1,13 +1,13 @@
 import json
 import pygame
 from pygame.locals import *
-import sys, os
-from sprites.crianca import Crianca
-import maze_maker
-from sprites.robo import Robo
-from labirinto.itens import ListaItens
-import labirinto.ia_labirinto as ia
-import labirinto.logica_labirinto as logica
+import sys
+from scripts.sprites.crianca import Crianca
+import scripts.maze_maker as maze_maker
+from scripts.sprites.robo import Robo
+from scripts.labirinto.itens import ListaItens
+import scripts.labirinto.ia_labirinto as ia
+import scripts.labirinto.logica_labirinto as logica
 
 # -*- coding: utf-8 -*-
 
@@ -22,10 +22,7 @@ class TelaLabirinto:
     def __init__(self, largura, altura):
         pygame.init()
 
-        diretorio_atual = os.path.dirname(__file__)
-        caminho_json = os.path.join(diretorio_atual, "data", "game_data.json")
-
-        with open(caminho_json, "r", encoding='utf-8') as arquivo:
+        with open("./data/game_data.json", "r", encoding='utf-8') as arquivo:
             self.configuracoes = json.load(arquivo)
 
         self.sons = self.configuracoes["sons"]
@@ -33,7 +30,7 @@ class TelaLabirinto:
         
         pygame.mixer.music.set_volume(self.sons["volume_musica"])
         self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_natal.wav')
-        #pygame.mixer.music.play(-1)
+        pygame.mixer.music.play(-1)
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
         self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
@@ -661,6 +658,3 @@ class TelaLabirinto:
             if retorno != None:
                 pygame.mixer.music.stop()
                 return retorno
-
-tela = TelaLabirinto(1280, 720)
-tela.executar()
