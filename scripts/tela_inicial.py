@@ -11,6 +11,9 @@ class TelaInicial:
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Tela Inicial')
 
+        self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
+        pygame.mixer.music.play()
+
         self.BRANCO = (255, 255, 255)
         self.PRETO = (0, 0, 0)
         self.AMARELO = (255, 255, 0)

@@ -28,9 +28,9 @@ class TelaLabirinto:
         self.sons = self.configuracoes["sons"]
         self.texto_narracao = self.configuracoes["textos_fases"]["natal"]
         
-        pygame.mixer.music.set_volume(self.sons["volume_musica"])
-        self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_natal.wav')
-        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(self.sons["volume_jogador"])
+        self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["narracoes"]["natal"])
+        pygame.mixer.music.play()
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
         self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
@@ -44,7 +44,7 @@ class TelaLabirinto:
         self.LARGURA = largura
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
-        pygame.display.set_caption('Fase 1 - Labirinto')
+        pygame.display.set_caption('Labirinto')
         self.relogio = pygame.time.Clock()
 
         self.GRID_ALTURA = 30
@@ -82,7 +82,7 @@ class TelaLabirinto:
         self.todas_sprites.add(self.crianca)
 
         # Textos
-        self.fonte = pygame.font.SysFont("calibri", 36)
+        self.fonte = pygame.font.Font(None, 36)
         self.fonte_maior = pygame.font.Font('assets/fonts/archivo_black.ttf', 48)
         self.fonte_menor = pygame.font.Font('assets/fonts/archivo_black.ttf', 30)
         self.fonte_narracao = pygame.font.SysFont("calibri", 30, bold=True, italic=True)
@@ -599,6 +599,14 @@ class TelaLabirinto:
 
     def desenhar_narracao(self):
         
+        if pygame.mixer.get_busy():
+            self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
+            pygame.mixer.music.set_volume(self.sons["volume_musica"])
+            self.narracao = False
+            self.jogando = True
+            pygame.mixer.music.play(-1)
+            return None
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -607,8 +615,12 @@ class TelaLabirinto:
             if event.type == MOUSEBUTTONDOWN:
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_pular.collidepoint(pos_mouse):
+                    self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["natal"])
+                    pygame.mixer.music.set_volume(self.sons["volume_musica"])
+                    print(pygame.mixer.music.get_volume())
                     self.narracao = False
                     self.jogando = True
+                    pygame.mixer.music.play(-1)
                     return None
                 elif self.botao_voltar.collidepoint(pos_mouse):
                     return "selecao_fases"
@@ -657,4 +669,7 @@ class TelaLabirinto:
 
             if retorno != None:
                 pygame.mixer.music.stop()
+                if retorno == "selecao_fases":
+                    self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
+                    pygame.mixer.music.play()
                 return retorno

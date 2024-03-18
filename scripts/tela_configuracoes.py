@@ -12,7 +12,7 @@ class TelaConfiguracoes:
         self.LARGURA = largura
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
-        pygame.display.set_caption('Tela Inicial')
+        pygame.display.set_caption('Configurações')
 
         self.BRANCO = (255, 255, 255)
         self.PRETO = (0, 0, 0)
@@ -103,7 +103,7 @@ class TelaConfiguracoes:
 
         self.configuracoes["sons"]["volume_musica"] = self.volume / 100
         with open("./data/game_data.json", "w") as arquivo:
-            json.dump(self.configuracoes, arquivo)
+            json.dump(self.configuracoes, arquivo, ensure_ascii=False, indent=4)
 
     def executar(self):
         while True:

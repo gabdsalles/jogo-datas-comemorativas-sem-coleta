@@ -90,4 +90,6 @@ class TelaFases:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
+                if retorno != "tela_inicial":
+                    pygame.mixer.music.stop()
                 return retorno

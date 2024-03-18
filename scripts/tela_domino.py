@@ -27,9 +27,9 @@ class TelaDomino:
         self.sons = self.configuracoes["sons"]
         self.texto_narracao = self.configuracoes["textos_fases"]["pascoa"]
         
-        pygame.mixer.music.set_volume(self.sons["volume_musica"])
-        self.musica_de_fundo = pygame.mixer.music.load('./assets/sons/musica_pascoa.wav')
-        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(self.sons["volume_jogador"])
+        self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["narracoes"]["pascoa"])
+        pygame.mixer.music.play()
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
         self.som_pontuacao_jogador.set_volume(self.sons["volume_jogador"])
@@ -43,7 +43,7 @@ class TelaDomino:
         self.LARGURA = largura
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
-        pygame.display.set_caption('Fase 3 - Dominó')
+        pygame.display.set_caption('Dominó')
         self.relogio = pygame.time.Clock()
 
         self.imagem_fundo = pygame.image.load("assets/imagens/pascoa_fundo.png").convert()
@@ -537,7 +537,7 @@ class TelaDomino:
                         dados["locked"]["festa_junina"] = False
 
                     with open("./data/game_data.json", "w") as arquivo:
-                        json.dump(dados, arquivo, indent=4)
+                        json.dump(dados, arquivo, indent=4, ensure_ascii=False)
                     # voltar para a seleção de fases
                     return "selecao_fases"
 
@@ -676,6 +676,14 @@ class TelaDomino:
 
     def desenhar_narracao(self):
         
+        if pygame.mixer.get_busy():
+            self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
+            pygame.mixer.music.set_volume(self.sons["volume_musica"])
+            self.narracao = False
+            self.jogando = True
+            pygame.mixer.music.play(-1)
+            return None
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -686,6 +694,9 @@ class TelaDomino:
                 if self.botao_pular.collidepoint(pos_mouse):
                     self.narracao = False
                     self.jogando = True
+                    self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
+                    pygame.mixer.music.set_volume(self.sons["volume_musica"])
+                    pygame.mixer.music.play(-1)
                     return None
                 elif self.botao_voltar.collidepoint(pos_mouse):
                     return "selecao_fases"
@@ -734,6 +745,10 @@ class TelaDomino:
                 
             if retorno != None:
                 pygame.mixer.music.stop()
+
+                if retorno == "selecao_fases":
+                    self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
+                    pygame.mixer.music.play(-1)
                 return retorno
 
 # tela = TelaDomino(1280, 720)
