@@ -25,6 +25,9 @@ class TelaConfiguracoes:
         self.texto_titulo = self.fonte.render("Configurações", True, self.PRETO)
         self.texto_volume = self.fonte.render("Volume:", True, self.PRETO)
 
+        self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
+        self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
+
         # Posição dos elementos
         self.texto_titulo_x = self.LARGURA // 2
         self.texto_titulo_y = 150
@@ -62,6 +65,8 @@ class TelaConfiguracoes:
                     self.diminuir_volume()
                 elif self.botao_mais_rect.collidepoint(pos_mouse):
                     self.aumentar_volume()
+                elif self.botao_voltar.collidepoint(pos_mouse):
+                    return "tela_inicial"
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
@@ -79,6 +84,9 @@ class TelaConfiguracoes:
         volume_bola_x = volume_bar_x + (self.volume / self.volume_maximo) * self.volume_bar_width
         volume_bola_y = volume_bar_y + self.volume_bar_height // 2
         pygame.draw.circle(self.tela, self.PRETO, (int(volume_bola_x), volume_bola_y), 8)
+
+        pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
+        self.tela.blit(self.imagem_voltar, (10, 10))
 
         self.botao_menos_rect = pygame.draw.rect(self.tela, self.PRETO, (self.botao_menos_x, self.botao_menos_y, 50, 50))
         self.botao_mais_rect = pygame.draw.rect(self.tela, self.PRETO, (self.botao_mais_x, self.botao_mais_y, 50, 50))

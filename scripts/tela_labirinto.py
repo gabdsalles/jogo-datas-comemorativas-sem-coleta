@@ -617,7 +617,6 @@ class TelaLabirinto:
                 if self.botao_pular.collidepoint(pos_mouse):
                     self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["natal"])
                     pygame.mixer.music.set_volume(self.sons["volume_musica"])
-                    print(pygame.mixer.music.get_volume())
                     self.narracao = False
                     self.jogando = True
                     pygame.mixer.music.play(-1)
