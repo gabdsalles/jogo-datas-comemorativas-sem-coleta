@@ -3,7 +3,11 @@ from pygame.locals import *
 import sys, json
 
 class TelaConfiguracoes:
+    """Na tela de configurações do jogo, é possível ajustar o volume. Esta tela é acessada apenas a
+    partir da tela inicial e, ao clicar no botão voltar, retorna à tela inicial. O ajuste do volume ocorre
+    usando botões de + e - e a barra de volume. O volume é salvo no arquivo game_data, que é um JSON."""
     def __init__(self, largura, altura):
+        """Inicializa a tela e seus componentes. Carrega as configurações do arquivo game_data.json."""
         pygame.init()
 
         with open("./data/game_data.json", "r") as arquivo:
@@ -14,17 +18,20 @@ class TelaConfiguracoes:
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Configurações')
 
+        # Cores
         self.BRANCO = (255, 255, 255)
         self.PRETO = (0, 0, 0)
         self.AMARELO = (255, 255, 0)
 
+        # Fonte
         self.fonte = pygame.font.Font(None, 36)
 
+        # Imagem
         self.imagem_fundo = pygame.image.load("assets/imagens/tela_inicial_fundo.png").convert()
 
+        # Textos e botões
         self.texto_titulo = self.fonte.render("Configurações", True, self.PRETO)
         self.texto_volume = self.fonte.render("Volume:", True, self.PRETO)
-
         self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
         self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
 
@@ -44,6 +51,7 @@ class TelaConfiguracoes:
         self.botao_mais_x = self.LARGURA // 2 + 80
         self.botao_mais_y = self.ALTURA // 2 + 70
 
+        # Retângulos
         self.ret_fundo = pygame.Rect(0, 0, self.ret_fundo_width, self.ret_fundo_height)
         self.ret_fundo.center = (self.ret_fundo_x, self.ret_fundo_y)
         self.ret_titulo = self.texto_titulo.get_rect(center=(self.LARGURA // 2, self.texto_titulo_y))
@@ -55,6 +63,9 @@ class TelaConfiguracoes:
         self.volume_minimo = 0
 
     def desenhar_tela(self):
+        """Desenha a tela de configurações. O volume é ajustado a partir de botões e uma barra de volume.
+        Também é responsável por capturar os eventos de clique do mouse."""
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -98,22 +109,26 @@ class TelaConfiguracoes:
         pygame.display.flip()
 
     def aumentar_volume(self):
+        """Aumenta o volume da música se o volume for menor que o máximo permitido (1.0). Salva o volume no JSON"""
         if self.volume < self.volume_maximo:
             self.volume += 10
             self.alterar_volume_json()
 
     def diminuir_volume(self):
+        """Diminui o volume da música se o volume for maior que o mínimo permitido (0.0). Salva o volume no JSON"""
         if self.volume > self.volume_minimo:
             self.volume -= 10
             self.alterar_volume_json()
 
     def alterar_volume_json(self):
 
+        """Altera o volume da música no arquivo JSON."""
         self.configuracoes["sons"]["volume_musica"] = self.volume / 100
         with open("./data/game_data.json", "w") as arquivo:
             json.dump(self.configuracoes, arquivo, ensure_ascii=False, indent=4)
 
     def executar(self):
+        """Enquanto a tela de configurações estiver ativa, desenha a tela e captura os eventos de clique do mouse."""
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:

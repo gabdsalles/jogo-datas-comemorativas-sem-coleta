@@ -1,6 +1,16 @@
 from random import shuffle, randrange, sample
 
 def make_maze(w=22, h=16, num_items=18):
+    
+    """Gera um labirinto com largura w e altura h, com num_items itens, de forma aleatória.
+    Retorna uma matriz que representa o labirinto. Cada célula da matriz é uma string que representa
+    o conteúdo da célula. As strings possíveis são:
+    "+-": parede horizontal"
+    "| ": parede vertical"
+    "i ": item
+    "  ": espaço vazio
+    """
+    
     vis = [[0] * w + [1] for _ in range(h)] + [[1] * (w + 1)]
     ver = [["| "] * w + ['|'] for _ in range(h)] + [[]]
     hor = [["+-"] * w + ['+'] for _ in range(h + 1)]
@@ -36,12 +46,17 @@ def make_maze(w=22, h=16, num_items=18):
     return string_to_matrix(s)
 
 def string_to_matrix(maze_string):
+    
+    """Converte uma string que representa um labirinto em uma matriz que representa o labirinto.
+    Retorna a matriz que representa o labirinto, pois, para desenhar o labirinto na tela, precisamos
+    de uma matriz, e não de uma string."""
+    
     rows = maze_string.strip().split('\n')
     matrix = [list(row) for row in rows]
     return matrix
 
-if __name__ == '__main__':
-    maze_matrix = make_maze()
-    for row in maze_matrix:
-        # print(''.join(row))
-        pass
+# if __name__ == '__main__':
+#     maze_matrix = make_maze()
+#     for row in maze_matrix:
+#         # print(''.join(row))
+#         pass

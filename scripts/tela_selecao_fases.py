@@ -5,7 +5,16 @@ from scripts.fases import ListaFases
 import sys, os
 
 class TelaFases:
+    
+    """A tela de seleção de fases é a tela que o jogador acessa para escolher a fase que deseja jogar.
+    Desenha colorido as fases que estão disponíveis para o jogador. As fases bloqueadas são desenhadas
+    em preto e branco e com um cadeado em cima. O jogador pode clicar em uma fase para jogar ou clicar
+    no botão "Voltar" para voltar para a tela inicial."""
+    
     def __init__(self, largura, altura):
+        
+        """Inicializa os componentes da tela de seleção de fases."""
+        
         pygame.init()
 
         self.LARGURA = largura
@@ -34,6 +43,10 @@ class TelaFases:
         self.locked = [locked[fase] for fase in locked]
 
     def desenhar_grid(self):
+        
+        """Função auxiliar, não é desenhada na versão final do jogo. Desenha um grid na tela para facilitar
+         a disposição dos componentes da tela. O grid é desenhado com linhas horizontais e verticais."""
+        
         for x in range(0, self.LARGURA, 50):
             pygame.draw.line(self.tela, self.PRETO, (x, 0), (x, self.ALTURA))
 
@@ -41,6 +54,10 @@ class TelaFases:
             pygame.draw.line(self.tela, self.PRETO, (0, y), (self.LARGURA, y))
     
     def desenhar_tela(self):
+        
+        """Função responsável por desenhar os componentes da tela de seleção de fases e tratar os eventos (cliques)
+        do jogador. Retorna o nome da fase que o jogador clicou ou "tela_inicial" se o jogador clicou no botão "Voltar"."""
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -87,6 +104,11 @@ class TelaFases:
         pygame.display.flip()
 
     def executar(self):
+        
+        """Função principal da tela de seleção de fases. Chama a função desenhar_tela até que o jogador clique
+        em uma fase ou no botão "Voltar". Retorna o nome da fase que o jogador clicou ou "tela_inicial" se o jogador
+        clicou no botão "Voltar"."""
+        
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:

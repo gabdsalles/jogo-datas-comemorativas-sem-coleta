@@ -3,6 +3,9 @@ import pygame
 
 class Fase:
 
+    """A classe Fase define um objeto que representa uma fase do jogo. Cada fase tem um retângulo que a representa
+    na tela de seleção de fases, um nome e uma imagem."""
+    
     def __init__(self, retangulo, nome, imagem):
         
         self.retangulo = retangulo
@@ -12,6 +15,9 @@ class Fase:
 
 class ListaFases:
 
+    """Essa classe controla a lista de fases do jogo. Ela é responsável por criar as fases e armazená-las em uma lista.
+    Ela também é responsável por desenhar as fases na tela de seleção de fases."""
+    
     def __init__(self):
 
         self.lista_retangulos = [pygame.rect.Rect(150, 150, 300, 200), pygame.rect.Rect(500, 150, 300, 200), pygame.rect.Rect(850, 150, 300, 200), pygame.rect.Rect(150, 400, 300, 200), pygame.rect.Rect(500, 400, 300, 200), pygame.rect.Rect(850, 400, 300, 200)]

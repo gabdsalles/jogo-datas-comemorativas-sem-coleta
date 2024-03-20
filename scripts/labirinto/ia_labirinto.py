@@ -2,6 +2,8 @@ from collections import deque
 
 def direcao_valida_robo(pos_robo, tabuleiro):
     
+    """Essa função recebe a posição do robô e o tabuleiro e retorna uma lista com as direções válidas para o robô se mover."""
+    
     possible_directions = ["left", "right", "up", "down"]
     valid_directions = []
     x = pos_robo[0]
@@ -33,6 +35,11 @@ def direcao_valida_robo(pos_robo, tabuleiro):
     return valid_directions
 
 def encontrar_caminho_para_item(tabuleiro, pos_inicial, pos_itens):
+    
+    """Essa função utiliza busca em profundidade para retornar um caminho eficiente para o robô.
+    Ela recebe o tabuleiro, a posição inicial do robô e a posição dos itens e retorna o caminho mais curto até um item.
+    A função retorna None se não houver caminho até o item."""
+
     visitados = set()
     fila = deque([(pos_inicial, [])]) 
     while fila:

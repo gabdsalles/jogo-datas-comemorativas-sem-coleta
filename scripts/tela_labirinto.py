@@ -1,7 +1,6 @@
-import json
 import pygame
 from pygame.locals import *
-import sys
+import sys, json
 from scripts.sprites.crianca import Crianca
 import scripts.maze_maker as maze_maker
 from scripts.sprites.robo import Robo
@@ -19,7 +18,16 @@ X_INICIAL = 350
 Y_INICIAL = 25
 
 class TelaLabirinto:
+    
+    """A tela do labirinto tem como data comemorativa o Natal. O jogador deve coletar 10 itens antes do robô.
+    O jogador e o robô se movem pelo labirinto e coletam os itens. O jogador pode clicar nas setas do teclado
+    para mover a criança e o robô se move automaticamente. O jogador pode clicar no botão de voltar para voltar
+    para a seleção de fases."""
+    
     def __init__(self, largura, altura):
+        
+        """Inicializa os componentes da tela do labirinto."""
+        
         pygame.init()
 
         with open("./data/game_data.json", "r", encoding='utf-8') as arquivo:
@@ -143,6 +151,11 @@ class TelaLabirinto:
         self.posicao_robo_matriz = (len(self.tabuleiro) - 2, len(self.tabuleiro[0]) - 2)
 
     def desenhar_labirinto(self):
+        
+        """Função que desenha o labirinto na tela. A partir do self.tabuleiro, desenha-se os retângulos
+        que representam as paredes e os espaços do labirinto. Também desenha as imagens dos itens nos
+        retângulos correspondentes."""
+        
         x, y = X_INICIAL, Y_INICIAL  # Posição inicial
         cont_itens = 0
 
@@ -215,6 +228,9 @@ class TelaLabirinto:
     
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
 
+        """Função auxiliar, não é desenhada na versão final do jogo. Desenha um grid na tela para facilitar
+         a disposição dos componentes da tela. O grid é desenhado com linhas horizontais e verticais."""
+        
         # Desenhe as linhas horizontais do grid
         for y in range(0, altura_tela, grid_altura):
             pygame.draw.line(tela, (100, 100, 100), (0, y), (largura_tela, y))
@@ -225,6 +241,9 @@ class TelaLabirinto:
 
     def direcao_valida_crianca(self, key):
     
+        """Recebe a tecla pressionada pelo jogador e verifica se a criança (jogador) pode se mover na direção.
+        Retorna True se a direção é válida e False caso contrário."""
+        
         if key == K_a or key == K_LEFT:
             x = self.posicao_crianca_matriz[0] - 1
             y = self.posicao_crianca_matriz[1]
@@ -259,6 +278,9 @@ class TelaLabirinto:
         
     def direcao_valida_robo(self, key):
     
+        """Similar à função direcao_valida_crianca, mas para o robô. Recebe a direção que o robô quer seguir
+        e verifica se é possível. Retorna True se a direção é válida e False caso contrário."""
+        
         if key == "left":
             x = self.posicao_robo_matriz[0] - 1
             y = self.posicao_robo_matriz[1]
@@ -293,6 +315,10 @@ class TelaLabirinto:
 
     def desenhar_tela(self):
 
+        """Desenha todos os componentes da tela. Também é responsável por verificar os cliques e teclas pressionadas
+        pelo jogador. Retorna "selecao_fases" se o jogador clicar no botão de voltar. A lógica de jogo é executada
+        aqui."""
+        
         self.relogio.tick(FPS)
 
         for event in pygame.event.get():
@@ -458,6 +484,9 @@ class TelaLabirinto:
 
     def desenhar_perdeu(self):
         
+        """Desenha a tela de perdeu. O jogador perdeu se o robô coletou 10 itens antes dele. O jogador pode clicar
+        no botão de voltar para voltar para a seleção de fases ou no botão de jogar novamente para recomeçar o jogo."""
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -520,6 +549,9 @@ class TelaLabirinto:
     
     def desenhar_ganhou(self):
 
+        """Desenha a tela de ganhou. O jogador ganhou se coletou 10 itens antes do robô. O jogador pode clicar
+        no botão de voltar para voltar para a seleção de fases."""
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -574,6 +606,10 @@ class TelaLabirinto:
         pygame.display.flip()
 
     def box_text(self, surface, font, x_start, x_end, y_start, text):
+        
+        """Função auxiliar chamada na função desenhar_narracao, que desenha a tela e o texto de narração.
+        Essa função quebra o texto em linhas para que ele caiba na tela. Também desenha o texto na tela"""
+        
         x = x_start
         y = y_start
         words = text.split(' ')
@@ -598,6 +634,9 @@ class TelaLabirinto:
                 line_width += word_width + space_width
 
     def desenhar_narracao(self):
+        
+        """Desenha a tela, os textos e as imagens de narração daquela fase. O jogador pode pular a narração
+        no botão "Pular", no canto inferior direito da tela."""
         
         if pygame.mixer.get_busy():
             self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
@@ -652,6 +691,10 @@ class TelaLabirinto:
         pygame.display.flip()
     
     def executar(self):
+        
+        """Função principal que chama as outras funções de desenho e controle do jogo. As variáveis booleanas
+        self.narracao, self.jogando, self.ganhou e self.perdeu controlam o que é desenhado na tela."""
+        
         while True:
             
             if self.narracao:

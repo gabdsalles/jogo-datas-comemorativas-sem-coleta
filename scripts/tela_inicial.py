@@ -3,7 +3,16 @@ from pygame.locals import *
 import sys
 
 class TelaInicial:
+    
+    """A tela inicial do jogo é a primeira a ser exibida. Nela, o jogador pode escolher entre jogar, acessar
+    as configurações ou sair do jogo. A tela inicial é acessada ao iniciar o jogo e, ao clicar em jogar, o jogo
+    avança para a seleção de fases. Ao clicar em configurações, o jogo avança para a tela de configurações. Ao
+    clicar em sair, o jogo é encerrado. A tela inicial possui uma música de fundo que é executada ao ser inicializada."""
+
     def __init__(self, largura, altura):
+        
+        """Inicializa a tela e seus componentes. Carrega a música de fundo e as imagens da tela inicial."""
+
         pygame.init()
 
         self.LARGURA = largura
@@ -36,6 +45,9 @@ class TelaInicial:
         self.ret_titulo = pygame.Rect(570 - 80, 150, 300, 100)
 
     def desenhar_tela(self):
+        
+        """Desenha os componentes da tela inicial e verifica os cliques do jogador. Retorna a próxima tela a
+        ser exibida."""
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -71,6 +83,9 @@ class TelaInicial:
         pygame.display.flip()
 
     def executar(self):
+        
+        """Executa a tela inicial até que o jogador clique em jogar, configurações ou sair."""
+        
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:

@@ -2,7 +2,7 @@ import random
 import pygame
 from pygame.locals import *
 from collections import deque
-import sys, os, json, copy
+import sys, json, copy
 import scripts.domino.ia_domino as ia
 
 from scripts.domino.pecas import Pecas
@@ -16,8 +16,17 @@ POSICAO_INICIAL = Posicao((760, 177, 70, 5), (760, 115, 70, 130), (760, 115), (7
 
 class TelaDomino:
 
+    """A tela do dominó tem como data comemorativa a Páscoa. O jogador joga contra um robô e o objetivo é ficar com zero
+    peças na mão o mais rápido possível, antes do robô. O sistema de compras é automático, tanto para o jogador quanto para
+    o robô. O jogador pode clicar nas peças para jogar, e o robô joga automaticamente. O jogo termina quando um dos jogadores
+    fica sem peças. O jogador pode voltar à tela inicial a qualquer momento. O tempo é contado e exibido na tela, assim como
+    a quantidade de peças de cada jogador."""
+    
     def __init__(self, largura, altura):
 
+        """Inicializa a tela e seus componentes. Carrega as configurações do arquivo game_data.json.
+        Carrega também as imagens, músicas e estruturas de dados pra armazenar as peças do tabuleiro."""
+        
         pygame.init()
         pygame.mixer.init()
 
@@ -155,6 +164,9 @@ class TelaDomino:
 
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
 
+        """Função auxiliar, não é desenhada na versão final do jogo. Desenha um grid na tela para facilitar
+         a disposição dos componentes da tela. O grid é desenhado com linhas horizontais e verticais."""
+        
         # Desenhe as linhas horizontais do grid
         for y in range(0, altura_tela, grid_altura):
             pygame.draw.line(tela, (100, 100, 100), (0, y), (largura_tela, y))
@@ -165,6 +177,8 @@ class TelaDomino:
     
     def checar_colisao(self, posicao_mouse):
             
+        """Checa se o mouse colidiu com alguma peça do jogador. Retorna o índice da peça clicada, ou None."""
+        
         for i, rect in enumerate(self.lista_rect_jogador):
             if rect.collidepoint(posicao_mouse):
                 return i
@@ -173,6 +187,9 @@ class TelaDomino:
     
     def checar_jogada_jogador(self, peca_clicada):
 
+        """Checa se a peça clicada pode ser jogada no tabuleiro. Se sim, a peça é jogada e removida da mão do jogador.
+        Se não, a função retorna None. A função também atualiza a vez do jogador e do robô, e atualiza a quantidade de peças.
+        Primeiro checa se a peça clicada pode ser jogada à esquerda do tabuleiro. Se não, checa se pode ser jogada à direita."""
         peca = self.pecas_jogador[peca_clicada]
         # print(peca.nome1, peca.nome2)
         if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
@@ -227,6 +244,9 @@ class TelaDomino:
     
     def limpar_tabuleiro(self, peca):
 
+        """Essa função é chamada quando os espaços para as peças do tabuleiro acabam.
+        Ela limpa o tabuleiro, devolve as peças do tabuleiro para a pilha de compras e continua o jogo."""
+        
         self.posicoes_retangulo_esquerda = copy.deepcopy(posicoes_retangulo_esquerda)
         self.posicoes_retangulo_direita = copy.deepcopy(posicoes_retangulo_direita)
         self.posicoes_imagem_esquerda = copy.deepcopy(posicoes_imagem_esquerda)
@@ -252,6 +272,8 @@ class TelaDomino:
 
     def incluir_peca_tabuleiro(self, peca, posicao):
 
+        """Se o espaço para as peças do tabuleiro acabou, essa função é chamada para limpar o tabuleiro, chamando
+        a função self.limpar_tabuleiro acima."""
         if self.pecas_pra_esquerda == 9 or self.pecas_pra_direita == 9: #acabou as posições
             self.limpar_tabuleiro(peca)
             self.pecas_pra_esquerda = 0
@@ -286,6 +308,9 @@ class TelaDomino:
     
     def desenhar_pecas_jogador(self, tela, pecas_jogador):
 
+        """A partir da lista de peças do jogador, desenha-se as bordas das peças e as duas imagens de cada peça.
+        A posição das peças depende da quantidade de peças do jogador: essa posição é definida no dicionário disponível em posicoes_pecas.py."""
+        
         self.lista_rect_jogador = []
         
         # desenhar retangulos
@@ -311,12 +336,18 @@ class TelaDomino:
     
     def desenhar_pecas_robo(self, tela):
 
+        """As peças do robô são desenhadas de forma similar às peças do jogador, mas em posições diferentes, na parte
+        de cima da tela. A posição das peças depende da quantidade de peças do robô: essa posição é definida no dicionário
+        disponível em posicoes_pecas.py. Aqui não desenhamos as imagens das peças, apenas as bordas."""
+        
         for i in range(self.qtd_pecas_robo):
             pygame.draw.rect(tela, self.AZUL_CLARO, (posicoes_retangulos_jogador[self.qtd_pecas_robo][i][0], 0, posicoes_retangulos_jogador[self.qtd_pecas_robo][i][2], 90))
             pygame.draw.rect(tela, self.AMARELO, (posicoes_retangulos_jogador[self.qtd_pecas_robo][i][0], 0, posicoes_retangulos_jogador[self.qtd_pecas_robo][i][2], 90), 5)
 
     def desenhar_tabuleiro(self, tela):
 
+        """Desenha as peças do tabuleiro, as bordas e os retângulos que representam as posições das peças do tabuleiro."""
+        
         for i, nome in enumerate(self.nomes_pecas_tabuleiro):
             cor = self.cores[nome.split()[0]]
             pygame.draw.rect(tela, cor, (self.lista_imagens_tabuleiro[i][0], self.lista_imagens_tabuleiro[i][1], 65, 65))
@@ -332,6 +363,8 @@ class TelaDomino:
 
     def checar_compra(self, pecas):
 
+        """Checa se o jogador ou o robô precisam comprar mais cartas. Se sim, a função retorna True."""
+
         esquerda = sum(1 for peca in pecas if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro)
         direita = sum(1 for peca in pecas if peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro)
         # print("Possibilidades à esquerda: ", esquerda)
@@ -342,6 +375,9 @@ class TelaDomino:
             return False
         
     def comprar_peca(self, pecas, quem_joga):
+            
+            """Compra uma peça para o jogador ou para o robô. A peça é retirada da pilha de compras e adicionada à mão.
+            A variável quem_joga tem duas possibilidades: jogador ou robô."""
             
             if self.lista_pecas == []: # se não tiver mais peças pra comprar
                 peca = random.choice(self.pecas_tabuleiro)
@@ -371,6 +407,11 @@ class TelaDomino:
 
     def escolher_quem_joga_primeiro(self):
 
+        """Esta função é chamada no início do jogo, após a distribuição das peças. O jogo vai dar a vez
+        para quem tem mais peças duplas. O jogo vai tirar uma das duplas de quem tem a vez para ser a
+        peça inicial do tabuleiro. Se ninguém tiver duplas, o jogo escolhe uma peça aleatória para ser a
+        inicial e escolhe a vez também aleatoriamente."""
+        
         duplas_jogador = sum(1 for peca in self.pecas_jogador if peca.tipo == "dupla")
         duplas_robo = sum(1 for peca in self.pecas_robo if peca.tipo == "dupla")
 
@@ -419,6 +460,10 @@ class TelaDomino:
         # print(duplas_jogador, duplas_robo)
     
     def escolher_peca_robo(self):
+        
+        """Função que escolhe a peça que o robô vai jogar. A escolha é feita baseada nas peças disponíveis,
+        na função ia.escolher_peca. A peça escolhida é jogada no tabuleiro e removida da mão do robô"""
+
         peca = ia.escolher_peca(self.pecas_robo, self.esquerda_tabuleiro, self.direita_tabuleiro)
         # print(peca.nome1, peca.nome2)
         if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
@@ -470,6 +515,8 @@ class TelaDomino:
     
     def desenhar_perdeu(self):
         
+        """Se o jogador perdeu o jogo, essa função é chamada. Ela desenha uma tela de game over e dá a opção
+        de voltar para a tela de seleção de fases ou jogar a fase novamente."""
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -521,6 +568,8 @@ class TelaDomino:
     
     def desenhar_ganhou(self):
 
+        """Se o jogador ganhou o jogo, essa função é chamada. Ela desenha uma tela de "você ganhou!" 
+        e dá a opção de voltar para a tela de seleção de fases."""
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -574,6 +623,7 @@ class TelaDomino:
     
     def desenhar_tela(self):
 
+        """Desenha a tela da fase do dominó."""
         self.relogio.tick(FPS)
 
         for event in pygame.event.get():
@@ -651,6 +701,8 @@ class TelaDomino:
             self.jogando = False
 
     def box_text(self, surface, font, x_start, x_end, y_start, text):
+        """Função auxiliar chamada na função desenhar_narracao, que desenha a tela e o texto de narração.
+        Essa função quebra o texto em linhas para que ele caiba na tela. Também desenha o texto na tela"""
         x = x_start
         y = y_start
         words = text.split(' ')
@@ -676,6 +728,8 @@ class TelaDomino:
 
     def desenhar_narracao(self):
         
+        """Desenha a tela, os textos e as imagens de narração daquela fase. O jogador pode pular a narração
+        no botão "Pular", no canto inferior direito da tela."""
         if pygame.mixer.get_busy():
             self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
             pygame.mixer.music.set_volume(self.sons["volume_musica"])
@@ -729,6 +783,8 @@ class TelaDomino:
         pygame.display.flip()
     
     def executar(self):
+        """Função principal que chama as outras funções de desenho e controle do jogo. As variáveis booleanas
+        self.narracao, self.jogando, self.ganhou e self.perdeu controlam o que é desenhado na tela."""
         while True:
             
             if self.narracao:

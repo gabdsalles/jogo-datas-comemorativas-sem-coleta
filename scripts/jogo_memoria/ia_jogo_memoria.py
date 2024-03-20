@@ -1,11 +1,16 @@
 import random
 
-from scripts.carta import Carta
-
 cartas_lembradas = []
 
 def escolher_cartas(lista_cartas):
 
+    """A função escolher_cartas simula o funcionamento de um agente inteligente. Ela recebe uma lista de cartas,
+    que são as cartas disponíveis para o agente escolher, e retorna duas cartas. A função escolhe duas cartas
+    aleatoriamente, mas com algumas restrições:
+    - Se o agente já viu duas cartas iguais, ele vai escolher essas duas cartas.
+    - Se o agente já viu uma carta, ele vai escolher essa carta e outra aleatória.
+    - Se o agente não viu nenhuma carta, ele vai escolher duas cartas aleatórias."""    
+    
     global cartas_lembradas
 
     lista_cartas = [carta for carta in lista_cartas if carta.dono == None and carta not in cartas_lembradas]
