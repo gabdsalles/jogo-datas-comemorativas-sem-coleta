@@ -49,18 +49,23 @@ class Tabuleiro:
         essa posição da lista e cria uma carta com essa posição. A função faz isso para cada carta."""        
         
         nomes_cartas = ["fogueira", "fogueira", "bandeira", "bandeira", "balao", "balao", "chapeu", "chapeu", "comidas", "comidas"]
-        cores_cartas = [VERMELHO, VERMELHO, AMARELO, AMARELO, AZUL, AZUL, LARANJA, LARANJA, VERDE, VERDE] 
+        cores_cartas = {
+            "fogueira": VERMELHO,
+            "bandeira": AMARELO,
+            "balao": AZUL,
+            "chapeu": LARANJA,
+            "comidas": VERDE
+        } 
 
         for i in range(10):
-            nome = nomes_cartas[i]
-            cor = cores_cartas[i]
+            posicao = self.lista_posicoes[i]
 
-            # Escolher uma posição aleatória da lista
-            posicao = random.choice(self.lista_posicoes)
-            
-            # Remover a posição escolhida da lista
-            self.lista_posicoes.remove(posicao)
+            nome = random.choice(nomes_cartas)
+            nomes_cartas.remove(nome)
+            cor = cores_cartas[nome]
 
             caminho_imagem = f"assets/imagens/cartas/{nome}.png"
             carta = Carta(caminho_imagem, nome, posicao, cor)
             self.lista_cartas.append(carta)
+            
+            

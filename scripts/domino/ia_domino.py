@@ -1,42 +1,52 @@
-import numpy as np
+def calcular_custos(pecas_robo, esquerda_tabuleiro, direita_tabuleiro, peca):
 
-class QLearning:
-    def __init__(self, n_actions, alpha=0.1, gamma=0.9):
-        self.alpha = alpha  
-        self.gamma = gamma  
-        self.q_values = np.zeros(n_actions)
+    # Heurística: retorna quantas peças com a mesma figura já estão na mão do robô
 
-    def update_q_value(self, action, reward, next_max_q_value):
-        self.q_values[action] += self.alpha * (reward + self.gamma * next_max_q_value - self.q_values[action])
+    if peca.nome1 == peca.nome2:
+        custo = 100
+    else:
+        custo = sum(1 for outra_peca in pecas_robo if outra_peca != peca and (outra_peca.nome1 == peca.nome1 or outra_peca.nome1 == peca.nome2 or outra_peca.nome2 == peca.nome1 or outra_peca.nome2 == peca.nome2))
+    return custo
 
-    def choose_action(self, epsilon):
-        if np.random.uniform() < epsilon:
-            return np.random.randint(len(self.q_values)) 
-        else:
-            return np.argmax(self.q_values)
+def heuristica_tabuleiro(tabuleiro, peca):
 
-def escolher_peca(pecas_robo, esquerda_tabuleiro, direita_tabuleiro):
+    # Retorna quantas peças com a mesma figura já estão no tabuleiro
+    
+    custo = sum(1 for peca_tabuleiro in tabuleiro if peca_tabuleiro.nome1 == peca.nome1 or peca_tabuleiro.nome1 == peca.nome2 or peca_tabuleiro.nome2 == peca.nome1 or peca_tabuleiro.nome2 == peca.nome2)
+    return custo
+
+def escolher_peca(pecas_robo, esquerda_tabuleiro, direita_tabuleiro, pecas_tabuleiro):
     pecas_possiveis = [peca for peca in pecas_robo if peca.nome1 == esquerda_tabuleiro or peca.nome2 == esquerda_tabuleiro or peca.nome1 == direita_tabuleiro or peca.nome2 == direita_tabuleiro]
 
     if len(pecas_possiveis) == 1:
+        print("Só tinha uma peça possível", pecas_possiveis[0].nome1, pecas_possiveis[0].nome2)
         return pecas_possiveis[0]
     else:
-        n_actions = len(pecas_possiveis)
-        epsilon = 0.1  # Taxa de exploração
-        q_learning = QLearning(n_actions=n_actions)
+        maior_custo = -1
+        melhor_peca = []
 
-        for _ in range(100):  # Número de iterações de treinamento
-            action = q_learning.choose_action(epsilon)
-            cont = sum(1 for p in pecas_possiveis if p.nome1 == pecas_possiveis[action].nome1 and p.nome2 == pecas_possiveis[action].nome2)
-            if pecas_possiveis[action].nome1 == pecas_possiveis[action].nome2:
-                reward = 1 # reward é maior para peças duplas
-            elif cont > 1:
-                reward = 0.5
-            else:
-                reward = 0 # reward é menor para peças simples
-            next_max_q_value = 0.5
-            q_learning.update_q_value(action, reward, next_max_q_value)
+        for peca in pecas_possiveis:
+            custo = calcular_custos(pecas_robo, esquerda_tabuleiro, direita_tabuleiro, peca)
+            print("Custo da peça", peca.nome1, peca.nome2, ":", custo)
+            if custo > maior_custo:
+                maior_custo = custo
+                melhor_peca = [peca]
+            elif custo == maior_custo:
+                melhor_peca.append(peca)
+        
+        if len(melhor_peca) == 1:
+            print("Só uma peça tem melhor custo", melhor_peca[0].nome1, melhor_peca[0].nome2)
+            return melhor_peca[0]
+        else: # se for maior que 1, quer dizer que tem 2 peças com o mesmo custo.
+            menor_custo = float("inf")
+            melhor_desempate = None
+            
+            for peca in melhor_peca:
+                custo = heuristica_tabuleiro(pecas_tabuleiro, peca)
+                print("Custo de desempate", peca.nome1, peca.nome2, ":", custo)
+                if custo < menor_custo:
+                    menor_custo = custo
+                    melhor_desempate = peca
 
-        best_action_index = q_learning.choose_action(epsilon=0)
-        return pecas_possiveis[best_action_index]
-
+            print("Retornando a melhor no desempate", melhor_desempate.nome1, melhor_desempate.nome2, "com custo", menor_custo)
+            return melhor_desempate

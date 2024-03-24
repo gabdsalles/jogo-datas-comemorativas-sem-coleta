@@ -464,7 +464,7 @@ class TelaDomino:
         """Função que escolhe a peça que o robô vai jogar. A escolha é feita baseada nas peças disponíveis,
         na função ia.escolher_peca. A peça escolhida é jogada no tabuleiro e removida da mão do robô"""
 
-        peca = ia.escolher_peca(self.pecas_robo, self.esquerda_tabuleiro, self.direita_tabuleiro)
+        peca = ia.escolher_peca(self.pecas_robo, self.esquerda_tabuleiro, self.direita_tabuleiro, self.pecas_tabuleiro)
         # print(peca.nome1, peca.nome2)
         if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
                 
@@ -480,6 +480,7 @@ class TelaDomino:
                 self.pecas_tabuleiro.appendleft(peca)
                 self.pecas_robo.remove(peca)
                 self.qtd_pecas_robo -= 1
+                print("jogada do robô...", peca.nome1, peca.nome2)
                 self.vez_jogador = True
                 self.vez_robo = False
                 self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)

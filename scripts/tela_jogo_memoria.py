@@ -114,6 +114,7 @@ class TelaJogoMemoria:
         self.fundo_carta = pygame.image.load("assets/imagens/cartas/fundo_carta.png")
 
         self.tabuleiro = Tabuleiro()
+        
 
         self.tempo_jogada = None
         
@@ -149,6 +150,7 @@ class TelaJogoMemoria:
             if self.lista_retangulos[i].collidepoint(posicao_mouse) and carta.virada == False and self.tabuleiro.cartas_viradas < 2:
                 carta.virada = True
                 self.tabuleiro.cartas_viradas += 1
+                print(f"Carta {i} virada.")
 
     def checar_jogada_jogador(self):
 
