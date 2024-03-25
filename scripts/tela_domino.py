@@ -7,6 +7,7 @@ import scripts.domino.ia_domino as ia
 
 from scripts.domino.pecas import Pecas
 from scripts.domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
+from scripts.dados import salvar_dados_domino
 
 LARGURA = 1280
 ALTURA = 720
@@ -159,8 +160,15 @@ class TelaDomino:
 
         self.esquerda_tabuleiro = None
         self.direita_tabuleiro = None
+
         self.pecas_pra_esquerda = 0
         self.pecas_pra_direita = 0
+        self.qtd_clicks = 0
+        self.qtd_clicks_em_pecas = 0
+        self.qtd_pecas_tabuleiro = 0
+        self.qtd_compras_jogador = 0
+        self.qtd_compras_robo = 0
+        self.qtd_limpar_tabuleiro = 0
 
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
 
@@ -216,6 +224,7 @@ class TelaDomino:
             self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
             self.qtd_jogadas_jogador += 1
             self.pecas_pra_esquerda += 1
+            self.qtd_pecas_tabuleiro += 1
             self.incluir_peca_tabuleiro(peca, "esquerda")
         
         elif peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro:
@@ -240,6 +249,7 @@ class TelaDomino:
             self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
             self.qtd_jogadas_jogador += 1
             self.pecas_pra_direita += 1
+            self.qtd_pecas_tabuleiro += 1
             self.incluir_peca_tabuleiro(peca, "direita")   
     
     def limpar_tabuleiro(self, peca):
@@ -247,6 +257,7 @@ class TelaDomino:
         """Essa função é chamada quando os espaços para as peças do tabuleiro acabam.
         Ela limpa o tabuleiro, devolve as peças do tabuleiro para a pilha de compras e continua o jogo."""
         
+        self.qtd_limpar_tabuleiro += 1
         self.posicoes_retangulo_esquerda = copy.deepcopy(posicoes_retangulo_esquerda)
         self.posicoes_retangulo_direita = copy.deepcopy(posicoes_retangulo_direita)
         self.posicoes_imagem_esquerda = copy.deepcopy(posicoes_imagem_esquerda)
@@ -390,6 +401,7 @@ class TelaDomino:
 
             if quem_joga == "jogador":
                 self.qtd_pecas_jogador += 1
+                self.qtd_compras_jogador += 1
                 #self.som_compras.play()
                 self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
                 self.vez_jogador = False
@@ -398,6 +410,7 @@ class TelaDomino:
 
             elif quem_joga == "robo":
                 self.qtd_pecas_robo += 1
+                self.qtd_compras_robo += 1
                 self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
                 self.vez_jogador = True
                 self.vez_robo = False
@@ -488,6 +501,7 @@ class TelaDomino:
                 self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
                 self.qtd_jogadas_robo += 1
                 self.pecas_pra_esquerda += 1
+                self.qtd_pecas_tabuleiro += 1
                 self.incluir_peca_tabuleiro(peca, "esquerda")
         
         elif peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro:
@@ -512,6 +526,7 @@ class TelaDomino:
             self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
             self.qtd_jogadas_robo += 1
             self.pecas_pra_direita += 1
+            self.qtd_pecas_tabuleiro += 1
             self.incluir_peca_tabuleiro(peca, "direita")
     
     def desenhar_perdeu(self):
@@ -634,6 +649,7 @@ class TelaDomino:
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.qtd_clicks += 1
                 posicao_mouse = pygame.mouse.get_pos()
 
                 if self.botao_voltar.collidepoint(posicao_mouse):
@@ -641,6 +657,7 @@ class TelaDomino:
 
                 peca_clicada = self.checar_colisao(posicao_mouse)
                 if peca_clicada is not None and self.vez_jogador:
+                    self.qtd_clicks_em_pecas += 1
                     self.checar_jogada_jogador(peca_clicada)
 
             if self.vez_jogador and self.qtd_pecas_jogador > 0:
@@ -696,10 +713,21 @@ class TelaDomino:
         if self.qtd_pecas_jogador == 0 and self.jogando == True:
             self.ganhou = True
             self.jogando = False
+            
+            salvar_dados_domino(
+                self.qtd_clicks, self.qtd_clicks_em_pecas, tempo_formatado, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
+                self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
+                self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo)
+
         
         if self.qtd_pecas_robo == 0 and self.jogando == True:
             self.perdeu = True
             self.jogando = False
+
+            salvar_dados_domino(
+                self.qtd_clicks, self.qtd_clicks_em_pecas, tempo_formatado, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
+                self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
+                self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo)
 
     def box_text(self, surface, font, x_start, x_end, y_start, text):
         """Função auxiliar chamada na função desenhar_narracao, que desenha a tela e o texto de narração.

@@ -2,7 +2,7 @@
     "sons": {
         "volume_jogador": 1.0,
         "volume_robo": 0.3,
-        "volume_musica": 0.5
+        "volume_musica": 0.0
     },
     "locked": {
         "pascoa": false,

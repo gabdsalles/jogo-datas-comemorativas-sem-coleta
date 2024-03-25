@@ -45,10 +45,10 @@ def testar_perceptron(entradas, pesos, bias):
         resultados.append(saida)
     return resultados
 
-entradas, esperados = carregar_dados_tabuleiro()
-pesos, bias = treinar_perceptron(entradas, esperados)
-print(pesos)
-print(bias)
-entradas_teste, esperados_teste = carregar_teste_tabuleiro()
-resultados = testar_perceptron(entradas_teste, pesos, bias)
-print(resultados)
+# entradas, esperados = carregar_dados_tabuleiro()
+# pesos, bias = treinar_perceptron(entradas, esperados)
+# print(pesos)
+# print(bias)
+# entradas_teste, esperados_teste = carregar_teste_tabuleiro()
+# resultados = testar_perceptron(entradas_teste, pesos, bias)
+# print(resultados)
