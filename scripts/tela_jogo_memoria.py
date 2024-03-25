@@ -37,7 +37,7 @@ class TelaJogoMemoria:
         pygame.mixer.music.play()
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
-        self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
+        self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo_memoria.wav')
 
         self.narracao = True
         self.jogando = False

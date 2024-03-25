@@ -41,6 +41,8 @@ class TelaFases:
 
         locked = self.configuracoes["locked"]
         self.locked = [locked[fase] for fase in locked]
+        self.volume = self.configuracoes["sons"]["volume_musica"]
+
 
     def desenhar_grid(self):
         

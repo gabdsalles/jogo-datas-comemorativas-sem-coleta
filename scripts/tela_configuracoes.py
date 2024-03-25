@@ -58,7 +58,7 @@ class TelaConfiguracoes:
         self.ret_volume = self.texto_volume.get_rect(center=(self.LARGURA // 2, self.texto_volume_y))
 
         # Volume
-        self.volume = 50
+        self.volume = self.configuracoes["sons"]["volume_musica"] * 100
         self.volume_maximo = 100
         self.volume_minimo = 0
 
@@ -92,7 +92,8 @@ class TelaConfiguracoes:
         volume_bar_y = self.ret_fundo.centery - self.volume_bar_height // 2
         pygame.draw.rect(self.tela, self.PRETO, (volume_bar_x, volume_bar_y, self.volume_bar_width, self.volume_bar_height))
         # Bolinha de volume
-        volume_bola_x = volume_bar_x + (self.volume / self.volume_maximo) * self.volume_bar_width
+        volume_proporcao = self.volume / self.volume_maximo
+        volume_bola_x = volume_bar_x + (self.volume_bar_width * volume_proporcao)
         volume_bola_y = volume_bar_y + self.volume_bar_height // 2
         pygame.draw.circle(self.tela, self.PRETO, (int(volume_bola_x), volume_bola_y), 8)
 
@@ -112,12 +113,14 @@ class TelaConfiguracoes:
         """Aumenta o volume da música se o volume for menor que o máximo permitido (1.0). Salva o volume no JSON"""
         if self.volume < self.volume_maximo:
             self.volume += 10
+            pygame.mixer.music.set_volume(self.volume / 100)
             self.alterar_volume_json()
 
     def diminuir_volume(self):
         """Diminui o volume da música se o volume for maior que o mínimo permitido (0.0). Salva o volume no JSON"""
         if self.volume > self.volume_minimo:
             self.volume -= 10
+            pygame.mixer.music.set_volume(self.volume / 100)
             self.alterar_volume_json()
 
     def alterar_volume_json(self):

@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-import sys
+import sys, json
 
 class TelaInicial:
     
@@ -15,12 +15,18 @@ class TelaInicial:
 
         pygame.init()
 
+        with open("./data/game_data.json", "r", encoding="utf-8") as arquivo:
+            self.configuracoes = json.load(arquivo)
+
+        self.volume = self.configuracoes["sons"]["volume_musica"]
+
         self.LARGURA = largura
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Tela Inicial')
 
         self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
+        pygame.mixer.music.set_volume(self.volume)
         pygame.mixer.music.play()
 
         self.BRANCO = (255, 255, 255)

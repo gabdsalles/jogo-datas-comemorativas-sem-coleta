@@ -1,9 +1,6 @@
-import json
 import os
 import traceback
 import requests
-from google.oauth2 import service_account
-import google.auth
 import gspread
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials

@@ -2,7 +2,7 @@
     "sons": {
         "volume_jogador": 1.0,
         "volume_robo": 0.3,
-        "volume_musica": 0.0
+        "volume_musica": 0.5
     },
     "locked": {
         "pascoa": false,
@@ -18,9 +18,9 @@
         "festa_junina": "A Festa Junina é uma festa popular tradicional brasileira, que acontece no mês de junho. É comemorada a partir do século 16, trazida pelos portugueses, inicialmente como uma festa apenas religiosa. Com o passar dos anos, uma grande mistura cultural começa a marcar as comemorações da Festa Junina, como a dança tradicional, a quadrilha, e comidas típicas, como paçoca, pé de moleque e canjica."
     },
     "narracoes": {
-        "natal": "./assets/narracoes/natal.mp3",
-        "pascoa": "./assets/narracoes/pascoa.mp3",
-        "festa_junina": "./assets/narracoes/festa_junina.mp3"
+        "natal": "./assets/narracoes/natal.wav",
+        "pascoa": "./assets/narracoes/pascoa.wav",
+        "festa_junina": "./assets/narracoes/festa_junina.wav"
     },
     "musicas": {
         "natal": "./assets/sons/musica_natal.wav",

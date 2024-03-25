@@ -41,7 +41,7 @@ class TelaLabirinto:
         pygame.mixer.music.play()
 
         self.som_pontuacao_jogador = pygame.mixer.Sound('./assets/sons/ponto_jogador.wav')
-        self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo.wav')
+        self.som_pontuacao_robo = pygame.mixer.Sound('./assets/sons/ponto_robo_labirinto.wav')
 
         self.narracao = True
         self.jogando = False
@@ -369,7 +369,6 @@ class TelaLabirinto:
             
             if posicao_robo == item.posicao and item.passou == False and item.dono == None:
                 item.passou = True
-                pygame.mixer.music.set_volume(self.sons["volume_robo"])
                 self.som_pontuacao_robo.play()
                 pygame.mixer.music.set_volume(self.sons["volume_musica"])
                 self.pontos_robo += 1
