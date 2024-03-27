@@ -36,12 +36,15 @@ def treinar_perceptron(entradas, esperados, pesos=[0, 0], taxa_aprendizado=0.1, 
                 pesos[j] = pesos[j] + (taxa_aprendizado * erro * entrada[j])
             bias = bias + (taxa_aprendizado * erro)
 
+            #corrigir o 
+
     return pesos, bias
 
 def testar_perceptron(entradas, pesos, bias):
     resultados = []
     for entrada in entradas:
         soma = sum([entrada[i] * pesos[i] for i in range(len(entrada))]) + bias
+        print(soma)
         saida = 1 if soma >= 0 else 0
         resultados.append(saida)
     return resultados

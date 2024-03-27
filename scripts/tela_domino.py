@@ -111,7 +111,13 @@ class TelaDomino:
         self.tempo_x = 100
         self.tempo_y = 675
 
-        self.tempo_decorrido = 0
+        self.tempo_jogo = 0
+        self.tempo_narracao = 0
+        self.tempo_ganhou_perdeu = 0
+
+        self.tempo_formatado_jogo = 0
+        self.tempo_formatado_narracao = 0
+        self.tempo_formatado_ganhou_perdeu = 0
 
         self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
         self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
@@ -169,6 +175,10 @@ class TelaDomino:
         self.qtd_compras_jogador = 0
         self.qtd_compras_robo = 0
         self.qtd_limpar_tabuleiro = 0
+        
+        self.mao_inicial_jogador = copy.deepcopy(self.pecas_jogador)
+        self.mao_inicial_robo = copy.deepcopy(self.pecas_robo)
+        self.jogadas = []
 
     def desenhar_grid(self, tela, largura_tela, altura_tela, grid_largura, grid_altura):
 
@@ -222,6 +232,13 @@ class TelaDomino:
             self.texto_jogador = self.fonte.render("É a vez do robô jogar!", True, self.PRETO)
             self.rect_texto_jogador = self.texto_jogador.get_rect()
             self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
+            jogada = {
+                "numero": self.qtd_jogadas_jogador,
+                "tempo": self.tempo_formatado_jogo,
+                "peca": (peca.nome1, peca.nome2),
+                "mao_jogador": [(peca.nome1, peca.nome2) for peca in self.pecas_jogador],
+            }
+            self.jogadas.append(jogada)
             self.qtd_jogadas_jogador += 1
             self.pecas_pra_esquerda += 1
             self.qtd_pecas_tabuleiro += 1
@@ -247,6 +264,13 @@ class TelaDomino:
             self.texto_jogador = self.fonte.render("É a vez do robô jogar!", True, self.PRETO)
             self.rect_texto_jogador = self.texto_jogador.get_rect()
             self.itens_jogador_texto = self.fonte.render(f"Peças do jogador: {self.qtd_pecas_jogador}", True, self.PRETO)
+            jogada = {
+                "numero": self.qtd_jogadas_jogador,
+                "tempo": self.tempo_formatado_jogo,
+                "peca": (peca.nome1, peca.nome2),
+                "mao_jogador": [(peca.nome1, peca.nome2) for peca in self.pecas_jogador],
+            }
+            self.jogadas.append(jogada)
             self.qtd_jogadas_jogador += 1
             self.pecas_pra_direita += 1
             self.qtd_pecas_tabuleiro += 1
@@ -533,12 +557,15 @@ class TelaDomino:
         
         """Se o jogador perdeu o jogo, essa função é chamada. Ela desenha uma tela de game over e dá a opção
         de voltar para a tela de seleção de fases ou jogar a fase novamente."""
+        self.relogio.tick(FPS)
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.qtd_clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
@@ -552,6 +579,11 @@ class TelaDomino:
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_ganhou_perdeu += 1
+        segundos = self.tempo_ganhou_perdeu // 60
+        minutos = segundos // 60
+        self.tempo_formatado_ganhou_perdeu = f"{minutos:02}:{segundos % 60:02}"
 
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
@@ -586,12 +618,15 @@ class TelaDomino:
 
         """Se o jogador ganhou o jogo, essa função é chamada. Ela desenha uma tela de "você ganhou!" 
         e dá a opção de voltar para a tela de seleção de fases."""
+        self.relogio.tick(FPS)
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.qtd_clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # print("Clicou no voltar!")
@@ -609,6 +644,11 @@ class TelaDomino:
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_ganhou_perdeu += 1
+        segundos = self.tempo_ganhou_perdeu // 60
+        minutos = segundos // 60
+        self.tempo_formatado_ganhou_perdeu = f"{minutos:02}:{segundos % 60:02}"
 
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
@@ -677,12 +717,12 @@ class TelaDomino:
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
         pygame.draw.rect(self.tela, self.AZUL_FUNDO, self.tabuleiro_rect)
 
-        self.tempo_decorrido += 1
-        segundos = self.tempo_decorrido // 60
+        self.tempo_jogo += 1
+        segundos = self.tempo_jogo // 60
         minutos = segundos // 60
-        tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
+        self.tempo_formatado_jogo = f"{minutos:02}:{segundos % 60:02}"
 
-        self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
+        self.tempo = self.fonte.render(self.tempo_formatado_jogo, True, self.PRETO)
 
         pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
         self.tela.blit(self.imagem_voltar, (10, 10))
@@ -713,21 +753,10 @@ class TelaDomino:
         if self.qtd_pecas_jogador == 0 and self.jogando == True:
             self.ganhou = True
             self.jogando = False
-            
-            salvar_dados_domino(
-                self.qtd_clicks, self.qtd_clicks_em_pecas, tempo_formatado, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
-                self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
-                self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo)
-
-        
+                    
         if self.qtd_pecas_robo == 0 and self.jogando == True:
             self.perdeu = True
             self.jogando = False
-
-            salvar_dados_domino(
-                self.qtd_clicks, self.qtd_clicks_em_pecas, tempo_formatado, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
-                self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
-                self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo)
 
     def box_text(self, surface, font, x_start, x_end, y_start, text):
         """Função auxiliar chamada na função desenhar_narracao, que desenha a tela e o texto de narração.
@@ -759,6 +788,8 @@ class TelaDomino:
         
         """Desenha a tela, os textos e as imagens de narração daquela fase. O jogador pode pular a narração
         no botão "Pular", no canto inferior direito da tela."""
+        self.relogio.tick(FPS)
+        
         if pygame.mixer.get_busy():
             self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["pascoa"])
             pygame.mixer.music.set_volume(self.sons["volume_musica"])
@@ -773,6 +804,7 @@ class TelaDomino:
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.qtd_clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_pular.collidepoint(pos_mouse):
                     self.narracao = False
@@ -787,6 +819,11 @@ class TelaDomino:
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_narracao += 1
+        segundos = self.tempo_narracao // 60
+        minutos = segundos // 60
+        self.tempo_formatado_narracao = f"{minutos:02}:{segundos % 60:02}"
 
         pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
         self.tela.blit(self.imagem_voltar, (10, 10))
@@ -832,6 +869,13 @@ class TelaDomino:
                 pygame.mixer.music.stop()
 
                 if retorno == "selecao_fases":
+                    
+                    salvar_dados_domino(
+                    self.qtd_clicks, self.qtd_clicks_em_pecas, self.tempo_formatado_narracao, self.tempo_formatado_jogo, self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
+                    self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
+                    self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, len(self.lista_pecas), self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo,
+                    self.mao_inicial_jogador, self.mao_inicial_robo, self.jogadas)
+
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
                 return retorno

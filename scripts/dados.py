@@ -11,33 +11,31 @@ api_key = "AIzaSyBHNpR6a0_7vjpjsWI2xtZTTYRwpCCrc38"
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-def salvar_dados_domino(clicks, clicks_peca, tempo, qtd_jogadas_jogador, qtd_jogadas_robo, qtd_pecas_esquerda, qtd_pecas_direita, qtd_pecas_tabuleiro, placar, ganhou,
-                        qtd_compras_jogador, qtd_compras_robo, qtd_limpar_tabuleiro, tabuleiro_final, mao_final_jogador, mao_final_robo):
+def converter_para_segundos(tempo):
+    minutos, segundos = map(int, tempo.split(":"))
+    return minutos * 60 + segundos
+
+def converter_para_tempo_formatado(segundos):
+    minutos, segundos = divmod(segundos, 60)
+    return f"{minutos:02d}:{segundos:02d}"
+
+def salvar_dados_domino(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_ganhou_perdeu, qtd_jogadas_jogador, qtd_jogadas_robo, qtd_pecas_esquerda, qtd_pecas_direita, qtd_pecas_tabuleiro, placar, ganhou,
+                        qtd_compras_jogador, qtd_compras_robo, qtd_pilha_compras, qtd_limpar_tabuleiro, tabuleiro_final, mao_final_jogador, mao_final_robo, mao_inicial_jogador, mao_inicial_robo, jogadas):
     
-    print("Clicks: ", clicks)
-    print("Clicks peça: ", clicks_peca)
-    print("Tempo: ", tempo)
-    print("Qtd jogadas jogador: ", qtd_jogadas_jogador)
-    print("Qtd jogadas robo: ", qtd_jogadas_robo)
-    print("Qtd peças esquerda: ", qtd_pecas_esquerda)
-    print("Qtd peças direita: ", qtd_pecas_direita)
-    print("Qtd peças tabuleiro: ", qtd_pecas_tabuleiro)
-    print("Placar: ", placar)
-    print("Ganhou: ", ganhou)
-    print("Qtd compras jogador: ", qtd_compras_jogador)
-    print("Qtd compras robo: ", qtd_compras_robo)
-    print("Qtd limpar tabuleiro: ", qtd_limpar_tabuleiro)
-    print("Tabuleiro final: ", list(tabuleiro_final))
-    for peca in mao_final_jogador:
-        print("Mão final jogador: ", peca.nome1, peca.nome2)
-    
-    for peca in mao_final_robo:
-        print("Mão final robo: ", peca.nome1, peca.nome2)
+    segundos_narracao = converter_para_segundos(tempo_narracao)
+    segundos_jogo = converter_para_segundos(tempo_jogo)
+    segundos_ganhou_perdeu = converter_para_segundos(tempo_ganhou_perdeu)
+
+    segundos_total = segundos_narracao + segundos_jogo + segundos_ganhou_perdeu
+    tempo_total = converter_para_tempo_formatado(segundos_total)
 
     dados = {
         "Clicks": clicks,
         "Clicks_peca": clicks_peca,
-        "Tempo": tempo,
+        "Tempo_narracao": tempo_narracao,
+        "Tempo_jogo": tempo_jogo,
+        "Tempo_ganhou_perdeu": tempo_ganhou_perdeu,
+        "Tempo_total": tempo_total,
         "Qtd_jogadas_jogador": qtd_jogadas_jogador,
         "Qtd_jogadas_robo": qtd_jogadas_robo,
         "Qtd_pecas_esquerda": qtd_pecas_esquerda,
@@ -47,10 +45,14 @@ def salvar_dados_domino(clicks, clicks_peca, tempo, qtd_jogadas_jogador, qtd_jog
         "Ganhou": ganhou,
         "Qtd_compras_jogador": qtd_compras_jogador,
         "Qtd_compras_robo": qtd_compras_robo,
+        "Qtd_pilha_compras": qtd_pilha_compras,
         "Qtd_limpar_tabuleiro": qtd_limpar_tabuleiro,
         "Tabuleiro_final": str(list(tabuleiro_final)),
         "Mao_final_jogador": str([(peca.nome1, peca.nome2) for peca in mao_final_jogador]),
-        "Mao_final_robo": str([(peca.nome1, peca.nome2) for peca in mao_final_robo])
+        "Mao_final_robo": str([(peca.nome1, peca.nome2) for peca in mao_final_robo]),
+        "Mao_inicial_jogador": str([(peca.nome1, peca.nome2) for peca in mao_inicial_jogador]),
+        "Mao_inicial_robo": str([(peca.nome1, peca.nome2) for peca in mao_inicial_robo]),
+        "Jogadas": str(jogadas)
     }
 
     dados_list = list(dados.values())
@@ -64,9 +66,48 @@ def salvar_dados_domino(clicks, clicks_peca, tempo, qtd_jogadas_jogador, qtd_jog
     # with open("./data/domino.json", "w") as f:
     #     f.write(dados_json)
 
-    salvar_dados_domino_google_sheets(dados_list)
+    salvar_dados_google_sheets(dados_list, "domino")
 
-def salvar_dados_domino_google_sheets(dados):
+def salvar_dados_memoria(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_ganhou_perdeu, qtd_jogadas_jogador,
+                         qtd_jogadas_robo, pontos_jogador, pontos_robo, placar, ganhou, tabuleiro, cartas_jogador, cartas_robo, jogadas):
+
+    tabuleiro_list = []
+
+    for i, carta in enumerate(tabuleiro):
+        carta_dict = {i: carta.nome}
+        tabuleiro_list.append(carta_dict)
+    
+    segundos_narracao = converter_para_segundos(tempo_narracao)
+    segundos_jogo = converter_para_segundos(tempo_jogo)
+    segundos_ganhou_perdeu = converter_para_segundos(tempo_ganhou_perdeu)
+    segundos_total = segundos_narracao + segundos_jogo + segundos_ganhou_perdeu
+    tempo_total = converter_para_tempo_formatado(segundos_total)
+
+    dados = {
+        "Clicks": clicks,
+        "Clicks_peca": clicks_peca,
+        "Tempo_narracao": tempo_narracao,
+        "Tempo_jogo": tempo_jogo,
+        "Tempo_ganhou_perdeu": tempo_ganhou_perdeu,
+        "Tempo_total": tempo_total,
+        "Qtd_jogadas_jogador": qtd_jogadas_jogador,
+        "Qtd_jogadas_robo": qtd_jogadas_robo,
+        "Pontos_jogador": pontos_jogador,
+        "Pontos_robo": pontos_robo,
+        "Placar": str(placar),
+        "Ganhou": ganhou,
+        "Tabuleiro": str(tabuleiro_list),
+        "Cartas_jogador": str([carta.nome for carta in cartas_jogador]),
+        "Cartas_robo": str([carta.nome for carta in cartas_robo]),
+        "Jogadas": str(jogadas)
+    }
+
+    dados_list = list(dados.values())
+
+    salvar_dados_google_sheets(dados_list, "jogo_memoria")
+
+
+def salvar_dados_google_sheets(dados, sheet_name):
 
     try:
         
@@ -96,7 +137,7 @@ def salvar_dados_domino_google_sheets(dados):
 
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key(domino_spreadsheet_id)
-        sheet = spreadsheet.worksheet("domino")
+        sheet = spreadsheet.worksheet(sheet_name)
         sheet.append_row(dados)
 
     except Exception as e:

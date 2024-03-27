@@ -5,6 +5,7 @@ from pygame.locals import *
 import sys
 from scripts.jogo_memoria.carta import Tabuleiro
 import scripts.jogo_memoria.ia_jogo_memoria as ia
+from scripts.dados import salvar_dados_memoria
 
 LARGURA = 1280
 ALTURA = 720
@@ -91,7 +92,7 @@ class TelaJogoMemoria:
         self.tempo_x = 100
         self.tempo_y = 675
 
-        self.tempo_decorrido = 0
+        self.tempo_jogo = 0
 
         self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
         self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
@@ -115,11 +116,23 @@ class TelaJogoMemoria:
 
         self.tabuleiro = Tabuleiro()
         
-
         self.tempo_jogada = None
+
+        self.tempo_narracao = 0
+        self.tempo_jogo = 0
+        self.tempo_ganhou_perdeu = 0
+
+        self.tempo_formatado_narracao = 0
+        self.tempo_formatado_jogo = 0
+        self.tempo_formatado_ganhou_perdeu = 0
         
         self.qtd_jogadas_jogador = 0
         self.qtd_jogadas_robo = 0
+
+        self.clicks = 0
+        self.clicks_tabuleiro = 0
+
+        self.jogadas = []
 
         self.posicoes_cartas_jogador = [(30, 150), (120, 150), (210, 150), (60, 250), (150, 250)]
         self.posicoes_cartas_robo = [(30, 430), (120, 430), (210, 430), (60, 580), (150, 580)]
@@ -158,14 +171,23 @@ class TelaJogoMemoria:
         A função segura a virada das cartas por 2 segundos, para que o jogador possa ver as cartas viradas."""
         
         carta1, carta2 = None, None
+        index_carta_1, index_carta_2 = None, None
 
-        for carta in self.tabuleiro.lista_cartas:
+        for i, carta in enumerate(self.tabuleiro.lista_cartas):
             if carta.virada == True and carta not in self.tabuleiro.lista_viradas:
                 if carta1 == None:
                     carta1 = carta
+                    index_carta_1 = i
                 else:
                     carta2 = carta
+                    index_carta_2 = i
 
+        jogada = {
+            "numero": self.qtd_jogadas_jogador,
+            "cartas": (carta1.nome, carta2.nome),
+            "posicoes": (index_carta_1, index_carta_2),
+        }
+        
         # se o jogador achou um par
         if carta1.nome == carta2.nome and carta1.dono == None and carta2.dono == None:
             carta1.dono = "jogador"
@@ -180,10 +202,11 @@ class TelaJogoMemoria:
             self.tempo_jogada = None
             self.qtd_jogadas_jogador += 1
             ia.limpar_cartas_lembradas()
+            self.jogadas.append(jogada)
 
         else:
             #print(self.tempo_decorrido - self.tempo_jogada)
-            if self.tempo_decorrido - self.tempo_jogada == 120:
+            if self.tempo_jogo - self.tempo_jogada == 120:
                 #print("não foi dessa vez.")
                 carta1.virada = False
                 carta2.virada = False
@@ -193,6 +216,7 @@ class TelaJogoMemoria:
                 self.vez_robo = True
                 self.texto_jogador = self.fonte.render("Agora, é a vez do robô.", True, self.PRETO)
                 self.qtd_jogadas_jogador += 1
+                self.jogadas.append(jogada)
             else:
                 self.texto_jogador = self.fonte.render("Não foi dessa vez!", True, self.PRETO)
                 # print(self.tempo_decorrido - self.tempo_jogada)
@@ -213,12 +237,12 @@ class TelaJogoMemoria:
         """Similar à função checar_jogada_jogador, essa função checa se o robô acertou um par de cartas. Se sim, adiciona um ponto ao robô e vira as cartas.
         Se não, desvira as cartas. A função segura a virada das cartas por 2 segundos, para que o jogador possa ver as cartas viradas."""
         
-        if self.tempo_decorrido - self.tempo_jogada == 120:
+        if self.tempo_jogo - self.tempo_jogada == 120:
             #Mostrar segunda carta
             carta1.virada = True
             carta2.virada = True
 
-        if self.tempo_decorrido - self.tempo_jogada == 240:
+        if self.tempo_jogo - self.tempo_jogada == 240:
             if carta1.nome == carta2.nome and carta1.dono == None and carta2.dono == None: # acertou
                 carta1.dono = "robo"
                 carta2.dono = "robo"
@@ -294,18 +318,21 @@ class TelaJogoMemoria:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-            if event.type == MOUSEBUTTONDOWN and self.vez_jogador:
+           
+            if event.type == MOUSEBUTTONDOWN:
                 posicao_mouse = pygame.mouse.get_pos()
-                
+                self.clicks += 1
+                if self.vez_jogador:
+                    self.checar_colisao(posicao_mouse) 
+                    self.clicks_tabuleiro += 1
+                    
                 if self.botao_voltar.collidepoint(posicao_mouse):
                     return "selecao_fases"
-
-                self.checar_colisao(posicao_mouse)        
+      
 
         if self.vez_jogador and self.tabuleiro.cartas_viradas == 2:
             if self.tempo_jogada == None:
-                self.tempo_jogada = self.tempo_decorrido
+                self.tempo_jogada = self.tempo_jogo
             self.checar_jogada_jogador()
 
         if self.vez_robo and self.tabuleiro.cartas_viradas < 2:
@@ -314,7 +341,7 @@ class TelaJogoMemoria:
 
         if self.vez_robo and self.tabuleiro.cartas_viradas == 2:
             if self.tempo_jogada == None:
-                self.tempo_jogada = self.tempo_decorrido
+                self.tempo_jogada = self.tempo_jogo
             self.checar_jogada_robo(carta1, carta2)
 
         self.tela.fill(self.PRETO)
@@ -324,12 +351,12 @@ class TelaJogoMemoria:
 
         self.desenhar_cartas()
 
-        self.tempo_decorrido += 1
-        segundos = self.tempo_decorrido // 60
+        self.tempo_jogo += 1
+        segundos = self.tempo_jogo // 60
         minutos = segundos // 60
-        tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
+        self.tempo_formatado_jogo = f"{minutos:02}:{segundos % 60:02}"
 
-        self.tempo = self.fonte.render(tempo_formatado, True, self.PRETO)
+        self.tempo = self.fonte.render(self.tempo_formatado_jogo, True, self.PRETO)
 
         pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
         self.tela.blit(self.imagem_voltar, (10, 10))
@@ -365,6 +392,7 @@ class TelaJogoMemoria:
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     #print("Clicou no Sim!")
@@ -376,6 +404,11 @@ class TelaJogoMemoria:
         
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_ganhou_perdeu += 1
+        segundos = self.tempo_ganhou_perdeu // 60
+        minutos = segundos // 60
+        self.tempo_formatado_ganhou_perdeu = f"{minutos:02}:{segundos % 60:02}"
 
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
@@ -416,6 +449,7 @@ class TelaJogoMemoria:
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
                     # voltar para a seleção de fases
@@ -432,6 +466,11 @@ class TelaJogoMemoria:
         
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_ganhou_perdeu += 1
+        segundos = self.tempo_ganhou_perdeu // 60
+        minutos = segundos // 60
+        self.tempo_formatado_ganhou_perdeu = f"{minutos:02}:{segundos % 60:02}"
 
         self.tela.blit(self.titulo_fase_texto, (self.titulo_fase_x, self.titulo_fase_y))
         self.tela.blit(self.itens_jogador_texto, (self.itens_jogador_x, self.itens_jogador_y))
@@ -507,6 +546,7 @@ class TelaJogoMemoria:
                 sys.exit()
 
             if event.type == MOUSEBUTTONDOWN:
+                self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_pular.collidepoint(pos_mouse):
                     self.musica_de_fundo = pygame.mixer.music.load(self.configuracoes["musicas"]["festa_junina"])
@@ -521,6 +561,11 @@ class TelaJogoMemoria:
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
         pygame.draw.rect(self.tela, self.AMARELO2, self.fundo_rect)
+
+        self.tempo_narracao += 1
+        segundos = self.tempo_narracao // 60
+        minutos = segundos // 60
+        self.tempo_formatado_narracao = f"{minutos:02}:{segundos % 60:02}"
 
         pygame.draw.rect(self.tela, self.PRETO, self.botao_voltar)
         self.tela.blit(self.imagem_voltar, (10, 10))
@@ -567,6 +612,10 @@ class TelaJogoMemoria:
             if retorno != None:
                 pygame.mixer.music.stop()
                 if retorno == "selecao_fases":
+                    salvar_dados_memoria(self.clicks, self.clicks_tabuleiro, self.tempo_formatado_narracao, self.tempo_formatado_jogo,
+                                         self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo, self.pontos_jogador,
+                                         self.pontos_robo, (self.pontos_jogador, self.pontos_robo), self.ganhou, self.tabuleiro.lista_cartas,
+                                         self.lista_cartas_jogador, self.lista_cartas_robo, self.jogadas)
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
                 return retorno
