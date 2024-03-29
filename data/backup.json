@@ -1,0 +1,33 @@
+{
+    "backup_numero": 3,
+    "0": {
+        "geral": {
+            "tela_inicial": 2,
+            "selecao_fases": 0,
+            "configuracoes": 1,
+            "pascoa": 0,
+            "festa junina": 0,
+            "natal": 0
+        }
+    },
+    "1": {
+        "geral": {
+            "tela_inicial": 1,
+            "selecao_fases": 1,
+            "configuracoes": 0,
+            "pascoa": 1,
+            "festa junina": 0,
+            "natal": 0
+        }
+    },
+    "2": {
+        "geral": {
+            "tela_inicial": 1,
+            "selecao_fases": 1,
+            "configuracoes": 0,
+            "pascoa": 0,
+            "festa junina": 0,
+            "natal": 0
+        }
+    }
+}

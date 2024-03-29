@@ -1,6 +1,9 @@
 import pygame
 from pygame.locals import *
 import sys, json
+from scripts.dados import atualizar_contagem_telas, salvar_dados_gerais, salvar_dados_outras_telas
+
+FPS = 60
 
 class TelaConfiguracoes:
     """Na tela de configurações do jogo, é possível ajustar o volume. Esta tela é acessada apenas a
@@ -17,6 +20,7 @@ class TelaConfiguracoes:
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Configurações')
+        self.relogio = pygame.time.Clock()
 
         # Cores
         self.BRANCO = (255, 255, 255)
@@ -62,15 +66,21 @@ class TelaConfiguracoes:
         self.volume_maximo = 100
         self.volume_minimo = 0
 
+        self.clicks = 0
+        self.tempo = 0
+        self.tempo_formatado = "00:00"
+
     def desenhar_tela(self):
         """Desenha a tela de configurações. O volume é ajustado a partir de botões e uma barra de volume.
         Também é responsável por capturar os eventos de clique do mouse."""
 
+        self.relogio.tick(FPS)
+        
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
             if event.type == MOUSEBUTTONDOWN: 
+                self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_menos_rect.collidepoint(pos_mouse):
                     self.diminuir_volume()
@@ -81,6 +91,11 @@ class TelaConfiguracoes:
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
+
+        self.tempo += 1
+        segundos = self.tempo // 60
+        minutos = segundos // 60
+        self.tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
 
         pygame.draw.rect(self.tela, self.AMARELO, self.ret_fundo)
 
@@ -135,5 +150,11 @@ class TelaConfiguracoes:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
+                atualizar_contagem_telas(retorno)
+                salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "configuracoes")
+                if retorno == "quit":
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    pygame.quit()
+                    sys.exit()
                 return retorno
 

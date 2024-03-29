@@ -5,7 +5,7 @@ from pygame.locals import *
 import sys
 from scripts.jogo_memoria.carta import Tabuleiro
 import scripts.jogo_memoria.ia_jogo_memoria as ia
-from scripts.dados import salvar_dados_memoria
+from scripts.dados import salvar_dados_memoria, atualizar_contagem_telas, salvar_dados_gerais
 
 LARGURA = 1280
 ALTURA = 720
@@ -122,9 +122,9 @@ class TelaJogoMemoria:
         self.tempo_jogo = 0
         self.tempo_ganhou_perdeu = 0
 
-        self.tempo_formatado_narracao = 0
-        self.tempo_formatado_jogo = 0
-        self.tempo_formatado_ganhou_perdeu = 0
+        self.tempo_formatado_narracao = "00:00"
+        self.tempo_formatado_jogo = "00:00"
+        self.tempo_formatado_ganhou_perdeu = "00:00"
         
         self.qtd_jogadas_jogador = 0
         self.qtd_jogadas_robo = 0
@@ -163,7 +163,6 @@ class TelaJogoMemoria:
             if self.lista_retangulos[i].collidepoint(posicao_mouse) and carta.virada == False and self.tabuleiro.cartas_viradas < 2:
                 carta.virada = True
                 self.tabuleiro.cartas_viradas += 1
-                print(f"Carta {i} virada.")
 
     def checar_jogada_jogador(self):
 
@@ -205,9 +204,7 @@ class TelaJogoMemoria:
             self.jogadas.append(jogada)
 
         else:
-            #print(self.tempo_decorrido - self.tempo_jogada)
             if self.tempo_jogo - self.tempo_jogada == 120:
-                #print("não foi dessa vez.")
                 carta1.virada = False
                 carta2.virada = False
                 self.tabuleiro.cartas_viradas = 0
@@ -219,7 +216,6 @@ class TelaJogoMemoria:
                 self.jogadas.append(jogada)
             else:
                 self.texto_jogador = self.fonte.render("Não foi dessa vez!", True, self.PRETO)
-                # print(self.tempo_decorrido - self.tempo_jogada)
 
     def jogada_robo(self):
 
@@ -227,7 +223,6 @@ class TelaJogoMemoria:
         
         if self.vez_robo:
             carta1, carta2 = ia.escolher_cartas(self.tabuleiro.lista_cartas)
-            # print(f"Carta 1: {carta1.nome}, Carta 2: {carta2.nome}")
             self.qtd_jogadas_robo += 1
             self.tabuleiro.cartas_viradas = 2
             return carta1, carta2
@@ -316,8 +311,7 @@ class TelaJogoMemoria:
         for event in pygame.event.get():
 
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
            
             if event.type == MOUSEBUTTONDOWN:
                 posicao_mouse = pygame.mouse.get_pos()
@@ -388,18 +382,14 @@ class TelaJogoMemoria:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
-                    #print("Clicou no Sim!")
                     return "festa junina"
                 if self.botao_nao.collidepoint(pos_mouse):
-                    # voltar para a seleção de fases
-                    #print("Clicou no Não!")
                     return "selecao_fases"
         
         self.tela.blit(self.imagem_fundo, (0, 0))
@@ -445,15 +435,12 @@ class TelaJogoMemoria:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
-                    # voltar para a seleção de fases
-                    #print("Clicou no voltar!")
 
                     with open("./data/game_data.json", "r") as arquivo:
                         dados = json.load(arquivo)
@@ -542,8 +529,7 @@ class TelaJogoMemoria:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.clicks += 1
@@ -610,12 +596,18 @@ class TelaJogoMemoria:
                 retorno = self.desenhar_perdeu()
             
             if retorno != None:
-                pygame.mixer.music.stop()
-                if retorno == "selecao_fases":
-                    salvar_dados_memoria(self.clicks, self.clicks_tabuleiro, self.tempo_formatado_narracao, self.tempo_formatado_jogo,
+                salvar_dados_memoria(self.clicks, self.clicks_tabuleiro, self.tempo_formatado_narracao, self.tempo_formatado_jogo,
                                          self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo, self.pontos_jogador,
                                          self.pontos_robo, (self.pontos_jogador, self.pontos_robo), self.ganhou, self.tabuleiro.lista_cartas,
                                          self.lista_cartas_jogador, self.lista_cartas_robo, self.jogadas)
+                pygame.mixer.music.stop()
+                if retorno == "selecao_fases":
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
+                    atualizar_contagem_telas(retorno)
+
+                elif retorno == "quit":
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    pygame.quit()
+                    sys.exit()
                 return retorno

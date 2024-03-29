@@ -1,7 +1,4 @@
-import os
-import traceback
-import requests
-import gspread
+import json, os, traceback, requests, gspread
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -10,6 +7,18 @@ domino_spreadsheet_id = "1Doxuhdbr3nmXlrDycuhkzYeMaILpdlK3qfBZD5s-EAs"
 api_key = "AIzaSyBHNpR6a0_7vjpjsWI2xtZTTYRwpCCrc38"
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+def atualizar_contagem_telas(tela_atual):
+    with open("./data/game_data.json", "r") as f:
+        json_content = json.load(f)
+    json_content["quantas_vezes_jogou_cada_tela"][tela_atual] += 1
+    with open("./data/game_data.json", "w") as f:
+        json.dump(json_content, f, ensure_ascii=False, indent=4)
+
+def pegar_token_jogador():
+    with open("./data/game_data.json", "r") as f:
+        json_content = json.load(f)
+    return json_content["token_jogador"]
 
 def converter_para_segundos(tempo):
     minutos, segundos = map(int, tempo.split(":"))
@@ -30,6 +39,7 @@ def salvar_dados_domino(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_g
     tempo_total = converter_para_tempo_formatado(segundos_total)
 
     dados = {
+        "Token": pegar_token_jogador(),
         "Clicks": clicks,
         "Clicks_peca": clicks_peca,
         "Tempo_narracao": tempo_narracao,
@@ -56,15 +66,6 @@ def salvar_dados_domino(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_g
     }
 
     dados_list = list(dados.values())
-    # print(dados_list)
-    # for dado in dados_list:
-    #     print(type(dado))
-
-    # Salva em um arquivo json localmente.
-    # dados_json = json.dumps(dados, indent=4)
-    # print(type(dados_json))
-    # with open("./data/domino.json", "w") as f:
-    #     f.write(dados_json)
 
     salvar_dados_google_sheets(dados_list, "domino")
 
@@ -84,6 +85,7 @@ def salvar_dados_memoria(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_
     tempo_total = converter_para_tempo_formatado(segundos_total)
 
     dados = {
+        "Token": pegar_token_jogador(),
         "Clicks": clicks,
         "Clicks_peca": clicks_peca,
         "Tempo_narracao": tempo_narracao,
@@ -106,6 +108,64 @@ def salvar_dados_memoria(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_
 
     salvar_dados_google_sheets(dados_list, "jogo_memoria")
 
+def salvar_dados_labirinto(clicks, qtd_teclado, teclas, tempo_narracao, tempo_jogo, tempo_ganhou_perdeu,
+                           qtd_jogadas_jogador, qtd_jogadas_robo, pontos_jogador, pontos_robo, placar, ganhou,
+                           tabuleiro, itens_jogador, itens_robo, jogadas):
+    
+    segundos_narracao = converter_para_segundos(tempo_narracao)
+    segundos_jogo = converter_para_segundos(tempo_jogo)
+    segundos_ganhou_perdeu = converter_para_segundos(tempo_ganhou_perdeu)
+    segundos_total = segundos_narracao + segundos_jogo + segundos_ganhou_perdeu
+    tempo_total = converter_para_tempo_formatado(segundos_total)
+
+    dados = {
+        "Token": pegar_token_jogador(),
+        "Clicks": clicks,
+        "Qtd_teclado": qtd_teclado,
+        "Teclas": str(teclas),
+        "Tempo_narracao": tempo_narracao,
+        "Tempo_jogo": tempo_jogo,
+        "Tempo_ganhou_perdeu": tempo_ganhou_perdeu,
+        "Tempo_total": tempo_total,
+        "Qtd_jogadas_jogador": qtd_jogadas_jogador,
+        "Qtd_jogadas_robo": qtd_jogadas_robo,
+        "Pontos_jogador": pontos_jogador,
+        "Pontos_robo": pontos_robo,
+        "Placar": str(placar),
+        "Ganhou": ganhou,
+        "Tabuleiro": str(tabuleiro),
+        "Itens_jogador": str([item.nome for item in itens_jogador]),
+        "Itens_robo": str([item.nome for item in itens_robo]),
+        "Jogadas": str(jogadas)
+    }
+
+    dados_list = list(dados.values())
+    salvar_dados_google_sheets(dados_list, "labirinto")
+
+def salvar_dados_localmente(dados, jogo):
+    
+    with open(f"./data/backup.json", 'r') as f:
+        backup = json.load(f)
+        numero_salvamento = backup["backup_numero"]
+
+    with open(f"./data/backup.json", 'w') as f:
+        backup["backup_numero"] = numero_salvamento + 1
+        backup[numero_salvamento] = {jogo: dados}
+        json.dump(backup, f, indent=4)
+
+def salvar_dados_gerais(dados):
+    dados_list = [pegar_token_jogador()] + list(dados.values())
+    salvar_dados_google_sheets(dados_list, "geral")
+
+def salvar_dados_outras_telas(clicks, tempo, tela):
+    dados = {
+        "Token": pegar_token_jogador(),
+        "Clicks": clicks,
+        "Tempo": tempo
+    }
+
+    dados_list = list(dados.values())
+    salvar_dados_google_sheets(dados_list, tela)
 
 def salvar_dados_google_sheets(dados, sheet_name):
 
@@ -113,10 +173,12 @@ def salvar_dados_google_sheets(dados, sheet_name):
         
         response = requests.get(f"https://sheets.googleapis.com/v4/spreadsheets/{domino_spreadsheet_id}?key={api_key}")
         if response.status_code == 200:
-            print("Conexão com Google Sheets estabelecida")
-            data = response.json()
+            #print("Conexão com Google Sheets estabelecida")
+            #data = response.json()
+            pass
         else:
-            print("Erro ao conectar com Google Sheets")
+            #print("Erro ao conectar com Google Sheets")
+            salvar_dados_localmente(dados, sheet_name)
             return
 
         creds = None
@@ -139,10 +201,12 @@ def salvar_dados_google_sheets(dados, sheet_name):
         spreadsheet = client.open_by_key(domino_spreadsheet_id)
         sheet = spreadsheet.worksheet(sheet_name)
         sheet.append_row(dados)
+        #print("dados salvos no Google Sheets")
 
     except Exception as e:
-        print("Erro ao salvar dados no Google Sheets: ", e)
-        traceback.print_exc()
+        #print("Erro ao salvar dados no Google Sheets: ", e)
+        salvar_dados_localmente(dados, sheet_name)
+        #traceback.print_exc()
 
     
 

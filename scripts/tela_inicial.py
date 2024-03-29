@@ -1,6 +1,9 @@
 import pygame
 from pygame.locals import *
 import sys, json
+from scripts.dados import atualizar_contagem_telas, salvar_dados_gerais, salvar_dados_outras_telas
+
+FPS = 60
 
 class TelaInicial:
     
@@ -19,6 +22,8 @@ class TelaInicial:
             self.configuracoes = json.load(arquivo)
 
         self.volume = self.configuracoes["sons"]["volume_musica"]
+        self.relogio = pygame.time.Clock()
+        self.clicks = 0
 
         self.LARGURA = largura
         self.ALTURA = altura
@@ -50,15 +55,20 @@ class TelaInicial:
         self.ret_fundo.center = (self.LARGURA // 2, self.ALTURA // 2)
         self.ret_titulo = pygame.Rect(570 - 80, 150, 300, 100)
 
+        self.tempo = 0
+        self.tempo_formatado = "00:00"
+
     def desenhar_tela(self):
         
         """Desenha os componentes da tela inicial e verifica os cliques do jogador. Retorna a próxima tela a
         ser exibida."""
+        self.relogio.tick(FPS)
+        
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
             if event.type == MOUSEBUTTONDOWN:
+                self.clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.ret_jogar.collidepoint(pos_mouse):
                     #print("Clicou em Jogar")
@@ -68,11 +78,18 @@ class TelaInicial:
                     #print("Clicou em Configurações")
                     return "configuracoes"
                 elif self.ret_sair.collidepoint(pos_mouse):
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "tela_inicial")
                     pygame.quit()
                     sys.exit()
 
         self.tela.fill(self.PRETO)
         self.tela.blit(self.imagem_fundo, (0, 0))
+
+        self.tempo += 1
+        segundos = self.tempo // 60
+        minutos = segundos // 60
+        self.tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
 
         pygame.draw.rect(self.tela, self.PRETO, self.ret_fundo)
         pygame.draw.rect(self.tela, self.PRETO, self.ret_titulo)
@@ -95,4 +112,11 @@ class TelaInicial:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
+                salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "tela_inicial")
+                if retorno == "quit":
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    pygame.quit()
+                    sys.exit()
+                else:
+                    atualizar_contagem_telas(retorno)
                 return retorno

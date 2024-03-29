@@ -2,7 +2,10 @@ import json
 import pygame
 from pygame.locals import *
 from scripts.fases import ListaFases
-import sys, os
+import sys
+from scripts.dados import atualizar_contagem_telas, salvar_dados_gerais, salvar_dados_outras_telas
+
+FPS = 60
 
 class TelaFases:
     
@@ -21,6 +24,7 @@ class TelaFases:
         self.ALTURA = altura
         self.tela = pygame.display.set_mode((self.LARGURA, self.ALTURA))
         pygame.display.set_caption('Tela de Fases')
+        self.relogio = pygame.time.Clock()
 
         self.BRANCO = (255, 255, 255)
         self.PRETO = (0, 0, 0)
@@ -43,6 +47,10 @@ class TelaFases:
         self.locked = [locked[fase] for fase in locked]
         self.volume = self.configuracoes["sons"]["volume_musica"]
 
+        self.clicks = 0
+        self.tempo = 0
+        self.tempo_formatado = "00:00"
+
 
     def desenhar_grid(self):
         
@@ -62,10 +70,10 @@ class TelaFases:
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
+                self.clicks += 1
                 if self.ret_voltar.collidepoint(pygame.mouse.get_pos()):
                     return "tela_inicial"
 
@@ -80,6 +88,11 @@ class TelaFases:
                             return "natal"
 
         self.tela.fill(self.AMARELO)
+
+        self.tempo += 1
+        segundos = self.tempo // 60
+        minutos = segundos // 60
+        self.tempo_formatado = f"{minutos:02}:{segundos % 60:02}"
 
         pygame.draw.rect(self.tela, self.PRETO, self.ret_voltar)
         self.tela.blit(self.texto_voltar, (self.ret_voltar.centerx - self.texto_voltar.get_width() // 2, self.ret_voltar.centery - self.texto_voltar.get_height() // 2))
@@ -114,6 +127,16 @@ class TelaFases:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
+                salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "selecao_fases")
                 if retorno != "tela_inicial":
                     pygame.mixer.music.stop()
+
+                if retorno == "quit":
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    pygame.quit()
+                    sys.exit()
+
+                else:
+                    atualizar_contagem_telas(retorno)
+                
                 return retorno

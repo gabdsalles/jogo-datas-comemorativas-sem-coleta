@@ -4,10 +4,9 @@ from pygame.locals import *
 from collections import deque
 import sys, json, copy
 import scripts.domino.ia_domino as ia
-
 from scripts.domino.pecas import Pecas
 from scripts.domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
-from scripts.dados import salvar_dados_domino
+from scripts.dados import salvar_dados_domino, atualizar_contagem_telas, salvar_dados_gerais
 
 LARGURA = 1280
 ALTURA = 720
@@ -115,9 +114,9 @@ class TelaDomino:
         self.tempo_narracao = 0
         self.tempo_ganhou_perdeu = 0
 
-        self.tempo_formatado_jogo = 0
-        self.tempo_formatado_narracao = 0
-        self.tempo_formatado_ganhou_perdeu = 0
+        self.tempo_formatado_jogo = "00:00"
+        self.tempo_formatado_narracao = "00:00"
+        self.tempo_formatado_ganhou_perdeu = "00:00"
 
         self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
         self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
@@ -209,19 +208,16 @@ class TelaDomino:
         Se não, a função retorna None. A função também atualiza a vez do jogador e do robô, e atualiza a quantidade de peças.
         Primeiro checa se a peça clicada pode ser jogada à esquerda do tabuleiro. Se não, checa se pode ser jogada à direita."""
         peca = self.pecas_jogador[peca_clicada]
-        # print(peca.nome1, peca.nome2)
         if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
             
             if peca.nome1 == self.esquerda_tabuleiro:
                 self.nomes_pecas_tabuleiro.appendleft(peca.nome1)
                 self.esquerda_tabuleiro = peca.nome2
                 self.nomes_pecas_tabuleiro.appendleft(peca.nome2)
-                # print("nome1")
             elif peca.nome2 == self.esquerda_tabuleiro:
                 self.nomes_pecas_tabuleiro.appendleft(peca.nome2)
                 self.esquerda_tabuleiro = peca.nome1
                 self.nomes_pecas_tabuleiro.appendleft(peca.nome1)
-                # print("nome2")
             
             self.pecas_tabuleiro.appendleft(peca)
             self.pecas_jogador.remove(peca)
@@ -402,8 +398,6 @@ class TelaDomino:
 
         esquerda = sum(1 for peca in pecas if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro)
         direita = sum(1 for peca in pecas if peca.nome1 == self.direita_tabuleiro or peca.nome2 == self.direita_tabuleiro)
-        # print("Possibilidades à esquerda: ", esquerda)
-        # print("Possibilidades à direita: ", direita)
         if esquerda == 0 and direita == 0:
             return True
         else:
@@ -439,8 +433,6 @@ class TelaDomino:
                 self.vez_jogador = True
                 self.vez_robo = False
                 self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)
-            
-            # print(f"{quem_joga} comprou uma peça!")
 
     def escolher_quem_joga_primeiro(self):
 
@@ -493,8 +485,6 @@ class TelaDomino:
             self.itens_robo_texto = self.fonte.render(f"Peças do robô: {self.qtd_pecas_robo}", True, self.PRETO)
             self.vez_jogador = True
             self.vez_robo = False
-        
-        # print(duplas_jogador, duplas_robo)
     
     def escolher_peca_robo(self):
         
@@ -502,7 +492,6 @@ class TelaDomino:
         na função ia.escolher_peca. A peça escolhida é jogada no tabuleiro e removida da mão do robô"""
 
         peca = ia.escolher_peca(self.pecas_robo, self.esquerda_tabuleiro, self.direita_tabuleiro, self.pecas_tabuleiro)
-        # print(peca.nome1, peca.nome2)
         if peca.nome1 == self.esquerda_tabuleiro or peca.nome2 == self.esquerda_tabuleiro:
                 
                 if peca.nome1 == self.esquerda_tabuleiro:
@@ -517,7 +506,6 @@ class TelaDomino:
                 self.pecas_tabuleiro.appendleft(peca)
                 self.pecas_robo.remove(peca)
                 self.qtd_pecas_robo -= 1
-                print("jogada do robô...", peca.nome1, peca.nome2)
                 self.vez_jogador = True
                 self.vez_robo = False
                 self.texto_jogador = self.fonte.render("É a sua vez de jogar!", True, self.PRETO)
@@ -561,19 +549,14 @@ class TelaDomino:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.qtd_clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
-                    #limpar variáveis de tempo, pontuação, etc e recomeçar o jogo
-                    # print("Clicou no Sim!")
                     return "pascoa"
                 if self.botao_nao.collidepoint(pos_mouse):
-                    # voltar para a seleção de fases
-                    # print("Clicou no Não!")
                     return "selecao_fases"
 
         self.tela.fill(self.PRETO)
@@ -622,16 +605,12 @@ class TelaDomino:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.qtd_clicks += 1
                 pos_mouse = pygame.mouse.get_pos()
                 if self.botao_voltar.collidepoint(pos_mouse):
-                    # print("Clicou no voltar!")
-                    # alterar o locked do json pra segunda fase == False
-
                     with open("./data/game_data.json", "r") as arquivo:
                         dados = json.load(arquivo)
                         dados["locked"]["festa_junina"] = False
@@ -685,8 +664,7 @@ class TelaDomino:
         for event in pygame.event.get():
 
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.qtd_clicks += 1
@@ -800,8 +778,7 @@ class TelaDomino:
         
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return "quit"
 
             if event.type == MOUSEBUTTONDOWN:
                 self.qtd_clicks += 1
@@ -868,16 +845,22 @@ class TelaDomino:
             if retorno != None:
                 pygame.mixer.music.stop()
 
-                if retorno == "selecao_fases":
-                    
-                    salvar_dados_domino(
+                salvar_dados_domino(
                     self.qtd_clicks, self.qtd_clicks_em_pecas, self.tempo_formatado_narracao, self.tempo_formatado_jogo, self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
                     self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
                     self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, len(self.lista_pecas), self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo,
                     self.mao_inicial_jogador, self.mao_inicial_robo, self.jogadas)
 
+                if retorno == "selecao_fases":
+
+                    atualizar_contagem_telas(retorno)
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
+
+                elif retorno == "quit":
+                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
+                    pygame.quit()
+                    sys.exit()
                 return retorno
 
 # tela = TelaDomino(1280, 720)

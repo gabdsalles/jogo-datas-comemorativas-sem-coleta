@@ -1,4 +1,5 @@
 import pygame
+import string, random, json
 from pygame.locals import *
 from scripts.tela_domino import TelaDomino
 from scripts.tela_selecao_fases import TelaFases
@@ -10,11 +11,25 @@ from scripts.tela_configuracoes import TelaConfiguracoes
 LARGURA = 1280
 ALTURA = 720
 
+def gerar_token():
+    letras = string.ascii_letters
+    token = ''.join(random.choice(letras) for _ in range(4))
+    return token
+
 class ControladorTelas:
     """Classe que controla as telas do jogo. Possui uma variável que armazena a tela atual
     e um método que inicia o jogo. As telas se comunicam a partir de um retorno de string entre elas."""
     def __init__(self):
         pygame.init()
+        token_jogador = gerar_token()
+        with open("./data/game_data.json", "r") as f:
+            self.configuracoes = json.load(f)
+        self.configuracoes["token_jogador"] = token_jogador
+        self.configuracoes["quantas_vezes_jogou_cada_tela"] = {
+        "tela_inicial": 1, "selecao_fases": 0, "configuracoes": 0, "pascoa": 0, "festa junina": 0, "natal": 0}
+        
+        with open("./data/game_data.json", 'w') as f:
+            json.dump(self.configuracoes, f, ensure_ascii=False, indent=4)
         self.tela_atual = None
     
     def iniciar(self):
