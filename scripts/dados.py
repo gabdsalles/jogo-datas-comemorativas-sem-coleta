@@ -157,7 +157,7 @@ def salvar_dados_localmente(dados, jogo):
         json.dump(backup, f, indent=4)
 
 def salvar_dados_gerais(dados):
-    dados_list = [pegar_token_jogador()] + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + list(dados.values())
+    dados_list = [pegar_token_jogador()] + list(dados.values())
     salvar_dados_google_sheets(dados_list, "geral")
 
 def salvar_dados_outras_telas(clicks, tempo, tela):
