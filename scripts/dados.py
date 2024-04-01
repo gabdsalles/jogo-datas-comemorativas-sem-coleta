@@ -1,4 +1,4 @@
-import json, os, traceback, requests, gspread
+import json, os, traceback, requests, gspread, datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -40,6 +40,7 @@ def salvar_dados_domino(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_g
 
     dados = {
         "Token": pegar_token_jogador(),
+        "Tempo": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "Clicks": clicks,
         "Clicks_peca": clicks_peca,
         "Tempo_narracao": tempo_narracao,
@@ -86,6 +87,7 @@ def salvar_dados_memoria(clicks, clicks_peca, tempo_narracao, tempo_jogo, tempo_
 
     dados = {
         "Token": pegar_token_jogador(),
+        "Tempo": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "Clicks": clicks,
         "Clicks_peca": clicks_peca,
         "Tempo_narracao": tempo_narracao,
@@ -120,6 +122,7 @@ def salvar_dados_labirinto(clicks, qtd_teclado, teclas, tempo_narracao, tempo_jo
 
     dados = {
         "Token": pegar_token_jogador(),
+        "Tempo": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "Clicks": clicks,
         "Qtd_teclado": qtd_teclado,
         "Teclas": str(teclas),
@@ -154,12 +157,13 @@ def salvar_dados_localmente(dados, jogo):
         json.dump(backup, f, indent=4)
 
 def salvar_dados_gerais(dados):
-    dados_list = [pegar_token_jogador()] + list(dados.values())
+    dados_list = [pegar_token_jogador()] + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + list(dados.values())
     salvar_dados_google_sheets(dados_list, "geral")
 
 def salvar_dados_outras_telas(clicks, tempo, tela):
     dados = {
         "Token": pegar_token_jogador(),
+        "Dia_hora": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "Clicks": clicks,
         "Tempo": tempo
     }

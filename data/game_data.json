@@ -27,13 +27,13 @@
         "pascoa": "./assets/sons/musica_pascoa.wav",
         "festa_junina": "./assets/sons/musica_festa_junina.wav"
     },
-    "token_jogador": "ChyP",
+    "token_jogador": "psdf",
     "quantas_vezes_jogou_cada_tela": {
-        "tela_inicial": 1,
-        "selecao_fases": 1,
-        "configuracoes": 0,
-        "pascoa": 0,
-        "festa junina": 1,
+        "tela_inicial": 2,
+        "selecao_fases": 2,
+        "configuracoes": 1,
+        "pascoa": 1,
+        "festa junina": 0,
         "natal": 0
     },
     "lista_telas": []
