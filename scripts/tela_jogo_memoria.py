@@ -200,7 +200,6 @@ class TelaJogoMemoria:
             self.lista_cartas_jogador.append(carta1)
             self.tempo_jogada = None
             self.qtd_jogadas_jogador += 1
-            ia.limpar_cartas_lembradas()
             self.jogadas.append(jogada)
 
         else:
@@ -222,7 +221,7 @@ class TelaJogoMemoria:
         """Aqui, o robô escolhe as cartas da sua jogada, na função ia.escolher_Cartas. A função retorna as cartas escolhidas."""
         
         if self.vez_robo:
-            carta1, carta2 = ia.escolher_cartas(self.tabuleiro.lista_cartas)
+            carta1, carta2 = ia.fazer_jogada(self.tabuleiro.lista_cartas)
             self.qtd_jogadas_robo += 1
             self.tabuleiro.cartas_viradas = 2
             return carta1, carta2
@@ -249,7 +248,6 @@ class TelaJogoMemoria:
                 self.tabuleiro.lista_viradas.append(carta2)
                 self.lista_cartas_robo.append(carta1)
                 self.tempo_jogada = None
-                ia.limpar_cartas_lembradas()
             else:
                 carta1.virada = False
                 carta2.virada = False
@@ -258,7 +256,6 @@ class TelaJogoMemoria:
                 self.vez_jogador = True
                 self.texto_jogador = self.fonte.render("É sua vez de jogar!", True, self.PRETO)
                 self.tempo_jogada = None
-                ia.atualizar_cartas_lembradas(random.choice([carta1, carta2]))
 
 
     def desenhar_cartas_jogador(self):
