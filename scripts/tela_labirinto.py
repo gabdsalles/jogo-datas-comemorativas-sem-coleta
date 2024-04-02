@@ -425,11 +425,11 @@ class TelaLabirinto:
         self.tempo_formatado_jogo = f"{minutos:02}:{segundos % 60:02}"
         self.tempo = self.fonte.render(self.tempo_formatado_jogo, True, self.PRETO)
 
-        if self.tempo_jogo % 300 == 0 or self.caminho is None or self.tempo_jogo == 0 or len(self.caminho) == 0:
+        if self.tempo_jogo % 900 == 0 or self.caminho is None or self.tempo_jogo == 0 or len(self.caminho) == 0:
 
             self.caminho = ia.encontrar_caminho_para_item(self.tabuleiro, self.posicao_robo_matriz, self.posicoes_itens_matriz)
         
-        if self.tempo_jogo % 60 == 0 and self.caminho is not None and len(self.caminho) > 0:
+        if self.tempo_jogo % 300 == 0 and self.caminho is not None and len(self.caminho) > 0:
 
             x_novo = 0
             y_novo = 0

@@ -71,10 +71,16 @@ def fazer_jogada(lista_cartas):
                 melhor_segunda_carta = indice_carta
                 melhor_saida = saida
 
-    if primeira_carta > melhor_segunda_carta:
-        possibilidades_jogadas.remove([melhor_segunda_carta, primeira_carta])
-    else:
-        possibilidades_jogadas.remove([primeira_carta, melhor_segunda_carta])
+    try:
+    
+        if primeira_carta > melhor_segunda_carta:
+            possibilidades_jogadas.remove([melhor_segunda_carta, primeira_carta])
+        else:
+            possibilidades_jogadas.remove([primeira_carta, melhor_segunda_carta])
+
+    except Exception as e:
+        # print("Caiu na exceção", e)
+        pass
 
     return lista_cartas[primeira_carta], lista_cartas[melhor_segunda_carta]
     
