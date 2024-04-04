@@ -27,14 +27,14 @@
         "pascoa": "./assets/sons/musica_pascoa.wav",
         "festa_junina": "./assets/sons/musica_festa_junina.wav"
     },
-    "token_jogador": "TmzK",
+    "token_jogador": "dtJP",
     "quantas_vezes_jogou_cada_tela": {
         "tela_inicial": 1,
         "selecao_fases": 1,
         "configuracoes": 0,
-        "pascoa": 0,
+        "pascoa": 1,
         "festa junina": 0,
-        "natal": 1
+        "natal": 0
     },
     "lista_telas": []
 }

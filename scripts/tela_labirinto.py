@@ -125,6 +125,7 @@ class TelaLabirinto:
 
         self.imagem_voltar = pygame.image.load("assets/imagens/voltar.png")
         self.botao_voltar = pygame.rect.Rect(10, 10, 30, 30)
+        self.botao_pular = pygame.rect.Rect(1100, 600, 100, 50)
 
         # Labirinto
         self.tabuleiro = maze_maker.make_maze()
@@ -714,7 +715,6 @@ class TelaLabirinto:
         self.imagem_robo = pygame.image.load("assets/imagens/robo_maior.png")
         self.tela.blit(self.imagem_robo, (350, 200))
 
-        self.botao_pular = pygame.rect.Rect(1100, 600, 100, 50)
         pygame.draw.rect(self.tela, self.cor_botoes, self.botao_pular, border_radius=20)
         texto_pular = self.fonte.render("Pular", True, self.PRETO)
         self.tela.blit(texto_pular, (1120, 615))
