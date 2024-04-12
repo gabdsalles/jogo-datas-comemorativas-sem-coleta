@@ -27,10 +27,10 @@
         "pascoa": "./assets/sons/musica_pascoa.wav",
         "festa_junina": "./assets/sons/musica_festa_junina.wav"
     },
-    "token_jogador": "EOLA",
+    "token_jogador": "dpWI",
     "quantas_vezes_jogou_cada_tela": {
         "tela_inicial": 1,
-        "selecao_fases": 4,
+        "selecao_fases": 3,
         "configuracoes": 0,
         "pascoa": 1,
         "festa junina": 1,

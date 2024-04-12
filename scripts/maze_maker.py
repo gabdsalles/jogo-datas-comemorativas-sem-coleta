@@ -1,6 +1,6 @@
 from random import shuffle, randrange, sample
 
-def make_maze(w=22, h=16, num_items=17):
+def make_maze(w=22, h=16, num_items=19):
     
     """Gera um labirinto com largura w e altura h, com num_items itens, de forma aleatória.
     Retorna uma matriz que representa o labirinto. Cada célula da matriz é uma string que representa
