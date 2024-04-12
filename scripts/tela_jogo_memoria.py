@@ -5,7 +5,6 @@ from pygame.locals import *
 import sys
 from scripts.jogo_memoria.carta import Tabuleiro
 import scripts.jogo_memoria.ia_jogo_memoria as ia
-from scripts.dados import salvar_dados_memoria, atualizar_contagem_telas, salvar_dados_gerais
 
 LARGURA = 1280
 ALTURA = 720
@@ -593,18 +592,12 @@ class TelaJogoMemoria:
                 retorno = self.desenhar_perdeu()
             
             if retorno != None:
-                salvar_dados_memoria(self.clicks, self.clicks_tabuleiro, self.tempo_formatado_narracao, self.tempo_formatado_jogo,
-                                         self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo, self.pontos_jogador,
-                                         self.pontos_robo, (self.pontos_jogador, self.pontos_robo), self.ganhou, self.tabuleiro.lista_cartas,
-                                         self.lista_cartas_jogador, self.lista_cartas_robo, self.jogadas)
                 pygame.mixer.music.stop()
                 if retorno == "selecao_fases":
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
-                    atualizar_contagem_telas(retorno)
 
                 elif retorno == "quit":
-                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
                     pygame.quit()
                     sys.exit()
                 return retorno

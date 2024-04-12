@@ -3,7 +3,6 @@ import pygame
 from pygame.locals import *
 from scripts.fases import ListaFases
 import sys
-from scripts.dados import atualizar_contagem_telas, salvar_dados_gerais, salvar_dados_outras_telas
 
 FPS = 60
 
@@ -127,16 +126,11 @@ class TelaFases:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
-                salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "selecao_fases")
                 if retorno != "tela_inicial":
                     pygame.mixer.music.stop()
 
                 if retorno == "quit":
-                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
                     pygame.quit()
                     sys.exit()
-
-                else:
-                    atualizar_contagem_telas(retorno)
                 
                 return retorno

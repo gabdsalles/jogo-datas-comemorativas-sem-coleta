@@ -6,7 +6,6 @@ import sys, json, copy
 import scripts.domino.ia_domino as ia
 from scripts.domino.pecas import Pecas
 from scripts.domino.posicoes_pecas import posicoes_retangulos_jogador, Posicao, posicoes_borda_esquerda, posicoes_borda_direita, posicoes_imagem_esquerda, posicoes_imagem_direita, posicoes_retangulo_esquerda, posicoes_retangulo_direita
-from scripts.dados import salvar_dados_domino, atualizar_contagem_telas, salvar_dados_gerais
 
 LARGURA = 1280
 ALTURA = 720
@@ -845,20 +844,12 @@ class TelaDomino:
             if retorno != None:
                 pygame.mixer.music.stop()
 
-                salvar_dados_domino(
-                    self.qtd_clicks, self.qtd_clicks_em_pecas, self.tempo_formatado_narracao, self.tempo_formatado_jogo, self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo,
-                    self.pecas_pra_esquerda, self.pecas_pra_direita, self.qtd_pecas_tabuleiro, (self.qtd_pecas_jogador, self.qtd_pecas_robo),
-                    self.ganhou, self.qtd_compras_jogador, self.qtd_compras_robo, len(self.lista_pecas), self.qtd_limpar_tabuleiro, self.nomes_pecas_tabuleiro, self.pecas_jogador, self.pecas_robo,
-                    self.mao_inicial_jogador, self.mao_inicial_robo, self.jogadas)
-
                 if retorno == "selecao_fases":
 
-                    atualizar_contagem_telas(retorno)
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play(-1)
 
                 elif retorno == "quit":
-                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
                     pygame.quit()
                     sys.exit()
                 return retorno

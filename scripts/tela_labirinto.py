@@ -7,7 +7,6 @@ from scripts.sprites.robo import Robo
 from scripts.labirinto.itens import ListaItens
 import scripts.labirinto.ia_labirinto as ia
 import scripts.labirinto.logica_labirinto as logica
-from scripts.dados import salvar_dados_labirinto, atualizar_contagem_telas, salvar_dados_gerais
 
 DISTANCIA_X = 30
 DISTANCIA_Y = 30
@@ -742,17 +741,11 @@ class TelaLabirinto:
 
             if retorno != None:
                 pygame.mixer.music.stop()
-                salvar_dados_labirinto(self.clicks, self.qtd_teclas_teclado, self.lista_teclas, self.tempo_formatado_narracao, self.tempo_formatado_jogo,
-                                           self.tempo_formatado_ganhou_perdeu, self.qtd_jogadas_jogador, self.qtd_jogadas_robo, self.pontos_jogador, self.pontos_robo,
-                                           (self.pontos_jogador, self.pontos_robo), self.ganhou, self.tabuleiro, self.novos_itens_jogador, self.novos_itens_robo,
-                                           self.jogadas)
                 if retorno == "selecao_fases":
                     self.musica_de_fundo = pygame.mixer.music.load("./assets/sons/musica_fundo.wav")
                     pygame.mixer.music.play()
-                    atualizar_contagem_telas(retorno)
 
                 elif retorno == "quit":
-                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
                     pygame.quit()
                     sys.exit()
                 return retorno

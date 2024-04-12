@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 import sys, json
-from scripts.dados import atualizar_contagem_telas, salvar_dados_gerais, salvar_dados_outras_telas
 
 FPS = 60
 
@@ -150,10 +149,7 @@ class TelaConfiguracoes:
         while True:
             retorno = self.desenhar_tela()
             if retorno != None:
-                atualizar_contagem_telas(retorno)
-                salvar_dados_outras_telas(self.clicks, self.tempo_formatado, "configuracoes")
                 if retorno == "quit":
-                    salvar_dados_gerais(self.configuracoes["quantas_vezes_jogou_cada_tela"])
                     pygame.quit()
                     sys.exit()
                 return retorno
