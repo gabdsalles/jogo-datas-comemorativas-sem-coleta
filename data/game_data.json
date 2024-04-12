@@ -6,8 +6,8 @@
     },
     "locked": {
         "pascoa": false,
-        "festa_junina": false,
-        "natal": false,
+        "festa_junina": true,
+        "natal": true,
         "fase4": true,
         "fase5": true,
         "fase6": true
@@ -27,14 +27,14 @@
         "pascoa": "./assets/sons/musica_pascoa.wav",
         "festa_junina": "./assets/sons/musica_festa_junina.wav"
     },
-    "token_jogador": "dtJP",
+    "token_jogador": "EOLA",
     "quantas_vezes_jogou_cada_tela": {
         "tela_inicial": 1,
-        "selecao_fases": 1,
+        "selecao_fases": 4,
         "configuracoes": 0,
         "pascoa": 1,
-        "festa junina": 0,
-        "natal": 0
+        "festa junina": 1,
+        "natal": 1
     },
     "lista_telas": []
 }
