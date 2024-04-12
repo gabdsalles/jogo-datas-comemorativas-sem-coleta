@@ -27,7 +27,7 @@
         "pascoa": "./assets/sons/musica_pascoa.wav",
         "festa_junina": "./assets/sons/musica_festa_junina.wav"
     },
-    "token_jogador": "ARIJ",
+    "token_jogador": "JmTq",
     "quantas_vezes_jogou_cada_tela": {
         "tela_inicial": 1,
         "selecao_fases": 0,
